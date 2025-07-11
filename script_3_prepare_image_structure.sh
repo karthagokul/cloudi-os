@@ -2,7 +2,7 @@
 set -e
 source ./common_config.sh
 echo "[3/4] Preparing image structure..."
-mkdir -p "$IMAGE_DIR/{casper,isolinux,install}"
+mkdir -p "$IMAGE_DIR/casper" "$IMAGE_DIR/isolinux" "$IMAGE_DIR/install"
 KERNEL_VERSION=$(ls "$CHROOT_DIR/boot" | grep vmlinuz- | sed 's/vmlinuz-//')
 echo "Using kernel: $KERNEL_VERSION"
 sudo cp "$CHROOT_DIR/boot/vmlinuz-$KERNEL_VERSION" "$IMAGE_DIR/casper/vmlinuz"

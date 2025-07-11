@@ -55,6 +55,7 @@ apt-get install -y sudo ubuntu-standard casper discover laptop-detect os-prober 
     network-manager net-tools wireless-tools wpagui locales grub-common grub-pc \
     grub-efi-amd64-signed ubiquity ubiquity-frontend-gtk xubuntu-desktop \
     plymouth-themes curl wget vim nano git
+apt-get install -y --no-install-recommends linux-generic linux-headers-generic
 
 # Cleanup unused
 apt-get autoremove -y
