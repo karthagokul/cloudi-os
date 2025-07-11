@@ -37,3 +37,5 @@ sudo lb clean --all
 ## License
 
 MIT
+
+https://raw.githubusercontent.com/mvallim/live-custom-ubuntu-from-scratch/refs/heads/master/README.md
