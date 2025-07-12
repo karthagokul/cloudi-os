@@ -2,110 +2,58 @@
 set -e
 source ./common_config.sh
 
-echo "[2/4] Cleaning stale mounts before customizing chroot..."
-for m in proc sys dev/pts dev run; do
+echo "========== [STEP 2/4] Customize Chroot =========="
+
+# ------------------------------------------------------------------------------
+# Function: unmount_stale_mounts
+# ------------------------------------------------------------------------------
+unmount_stale_mounts() {
+  echo "[2.1] Unmounting stale chroot mounts..."
+  for m in proc sys dev/pts dev run; do
     sudo umount -lf "$CHROOT_DIR/$m" 2>/dev/null || true
-done
+  done
+}
 
-echo "[2/4] Customizing chroot..."
+# ------------------------------------------------------------------------------
+# Function: customize_chroot
+# ------------------------------------------------------------------------------
+customize_chroot() {
+  if [ ! -d "$CHROOT_DIR" ]; then
+    echo "[ERROR] Chroot directory not found at $CHROOT_DIR"
+    exit 1
+  fi
 
-sudo chroot "$CHROOT_DIR" env DEBIAN_FRONTEND=noninteractive /bin/bash <<'EOT'
-set -e
+  echo "[2.2] Preparing to configure chrooted base system..."
 
-# Mount required filesystems
-mount none -t proc /proc
-mount none -t sysfs /sys
-mount none -t devpts /dev/pts
+  echo "[2.2.a] Copying modular chroot scripts..."
+  sudo mkdir -p "$CHROOT_DIR/root/chroot_scripts"
+  sudo cp -r ./chroot_scripts/* "$CHROOT_DIR/root/chroot_scripts/"
+  sudo find "$CHROOT_DIR/root/chroot_scripts/" -type f -name "*.sh" -exec chmod +x {} \;
 
-export HOME=/root
-export LC_ALL=C
+  echo "[2.2.b] Entering chroot to run modular chroot scripts..."
+  sudo chroot "$CHROOT_DIR" env DEBIAN_FRONTEND=noninteractive DISTRIBUTION="$DISTRIBUTION" /bin/bash -c "/root/chroot_scripts/chroot_configure.sh"
 
-# Set hostname
-echo 'cloudify-os-live' > /etc/hostname
+  echo "[2.2.c] Cleaning up chroot script directory..."
+  sudo rm -rf "$CHROOT_DIR/root/chroot_scripts"
+}
 
-# Setup sources
-echo 'deb http://us.archive.ubuntu.com/ubuntu/ noble main restricted universe multiverse' > /etc/apt/sources.list
 
-# Update and install essentials
-apt-get update
-apt-get install -y systemd-sysv
 
-# Setup machine-id and initctl diversion
-dbus-uuidgen > /etc/machine-id
-ln -fs /etc/machine-id /var/lib/dbus/machine-id
-dpkg-divert --local --rename --add /sbin/initctl
-ln -s /bin/true /sbin/initctl
 
-# Upgrade existing packages
-apt-get -y upgrade
+# ------------------------------------------------------------------------------
+# Function: unmount_bind_mounts
+# ------------------------------------------------------------------------------
+unmount_bind_mounts() {
+  echo "[2.3] Unmounting bind mounts from host..."
+  sudo umount "$CHROOT_DIR/dev" || true
+  sudo umount "$CHROOT_DIR/run" || true
+}
 
-# Preseed keyboard to suppress prompts
-echo 'keyboard-configuration  keyboard-configuration/layoutcode select us' | debconf-set-selections
-echo 'keyboard-configuration  keyboard-configuration/modelcode select pc105' | debconf-set-selections
-echo 'keyboard-configuration  keyboard-configuration/xkb-keymap select us' | debconf-set-selections
-echo 'keyboard-configuration  keyboard-configuration/layout select USA' | debconf-set-selections
-echo 'keyboard-configuration  keyboard-configuration/variant select ' | debconf-set-selections
+# ------------------------------------------------------------------------------
+# Main
+# ------------------------------------------------------------------------------
+unmount_stale_mounts
+customize_chroot
+unmount_bind_mounts
 
-# Preseed locale
-echo "locales locales/default_environment_locale select en_US.UTF-8" | debconf-set-selections
-echo "locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8" | debconf-set-selections
-
-# Install packages for live system and XFCE
-apt-get install -y sudo ubuntu-standard casper discover laptop-detect os-prober \
-    network-manager net-tools wireless-tools wpagui locales grub-common grub-pc \
-    grub-efi-amd64-signed ubiquity ubiquity-frontend-gtk xubuntu-desktop \
-    plymouth-themes curl wget vim nano git lightdm
-
-apt-get install -y --no-install-recommends linux-generic linux-headers-generic
-
-# Create 'ubuntu' user with passwordless sudo and proper groups
-useradd -m -s /bin/bash ubuntu
-echo "ubuntu:ubuntu" | chpasswd
-adduser ubuntu sudo
-adduser ubuntu adm
-adduser ubuntu netdev
-adduser ubuntu audio
-adduser ubuntu video
-
-# Enable LightDM auto-login for ubuntu user
-mkdir -p /etc/lightdm/lightdm.conf.d
-cat <<EOF > /etc/lightdm/lightdm.conf.d/50-cloudify-autologin.conf
-[Seat:*]
-autologin-user=ubuntu
-autologin-user-timeout=0
-EOF
-
-# Ensure NetworkManager manages interfaces
-echo "[main]
-plugins=ifupdown,keyfile
-
-[ifupdown]
-managed=true
-" > /etc/NetworkManager/NetworkManager.conf
-
-# Generate locales without prompts
-locale-gen
-update-locale LANG=en_US.UTF-8
-
-# Cleanup unused
-apt-get autoremove -y
-apt-get clean
-
-# Final cleanup
-rm -f /etc/machine-id /var/lib/dbus/machine-id
-rm /sbin/initctl
-dpkg-divert --rename --remove /sbin/initctl
-rm -rf /tmp/*
-
-# Unmount filesystems cleanly inside chroot
-umount /proc || true
-umount /sys || true
-umount /dev/pts || true
-
-EOT
-
-# Unmount bind mounts from host
-sudo umount "$CHROOT_DIR/dev" || true
-sudo umount "$CHROOT_DIR/run" || true
-
-echo "[2/4] Done. Run script_3_prepare_image_structure.sh next."
+echo "[✔] Step 2 complete. You can now run: ./script_3_prepare_image_structure.sh"
