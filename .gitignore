@@ -1,0 +1,12 @@
+# live-build temporary and output directories
+config/
+local/
+cache/
+chroot/
+binary/
+live-image-amd64.hybrid.iso
+
+# OS files
+.DS_Store
+Thumbs.db
+
