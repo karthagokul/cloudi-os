@@ -9,4 +9,5 @@ UBUNTU_MIRROR="http://us.archive.ubuntu.com/ubuntu/"
 ISO_NAME="cloudify-os-${DISTRIBUTION}-${ARCH}.iso"
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 export DEBIAN_FRONTEND=noninteractive
+SHOW_CONSOLE_LOGS=true 
 echo "--- Cloudify OS Build Environment Loaded ---"

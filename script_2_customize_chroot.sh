@@ -54,21 +54,47 @@ echo "locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8" | d
 apt-get install -y sudo ubuntu-standard casper discover laptop-detect os-prober \
     network-manager net-tools wireless-tools wpagui locales grub-common grub-pc \
     grub-efi-amd64-signed ubiquity ubiquity-frontend-gtk xubuntu-desktop \
-    plymouth-themes curl wget vim nano git
+    plymouth-themes curl wget vim nano git lightdm
+
 apt-get install -y --no-install-recommends linux-generic linux-headers-generic
 
-# Cleanup unused
-apt-get autoremove -y
+# Create 'ubuntu' user with passwordless sudo and proper groups
+useradd -m -s /bin/bash ubuntu
+echo "ubuntu:ubuntu" | chpasswd
+adduser ubuntu sudo
+adduser ubuntu adm
+adduser ubuntu netdev
+adduser ubuntu audio
+adduser ubuntu video
+
+# Enable LightDM auto-login for ubuntu user
+mkdir -p /etc/lightdm/lightdm.conf.d
+cat <<EOF > /etc/lightdm/lightdm.conf.d/50-cloudify-autologin.conf
+[Seat:*]
+autologin-user=ubuntu
+autologin-user-timeout=0
+EOF
+
+# Ensure NetworkManager manages interfaces
+echo "[main]
+plugins=ifupdown,keyfile
+
+[ifupdown]
+managed=true
+" > /etc/NetworkManager/NetworkManager.conf
 
 # Generate locales without prompts
 locale-gen
 update-locale LANG=en_US.UTF-8
 
+# Cleanup unused
+apt-get autoremove -y
+apt-get clean
+
 # Final cleanup
 rm -f /etc/machine-id /var/lib/dbus/machine-id
 rm /sbin/initctl
 dpkg-divert --rename --remove /sbin/initctl
-apt-get clean
 rm -rf /tmp/*
 
 # Unmount filesystems cleanly inside chroot

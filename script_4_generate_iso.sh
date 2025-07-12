@@ -25,7 +25,12 @@ cp /usr/lib/syslinux/modules/bios/libutil.c32 isolinux/
 # Create isolinux boot catalog
 touch isolinux/boot.cat
 
-# Create isolinux.cfg
+if [ "$SHOW_CONSOLE_LOGS" = true ]; then
+    KERNEL_PARAMS="initrd=/casper/initrd boot=casper console=ttyS0,115200n8"
+else
+    KERNEL_PARAMS="initrd=/casper/initrd boot=casper quiet splash"
+fi
+
 cat <<EOF | sudo tee isolinux/isolinux.cfg
 UI vesamenu.c32
 DEFAULT live
@@ -37,14 +42,30 @@ MENU TITLE Cloudify OS Boot Menu
 LABEL live
     MENU LABEL Try Cloudify OS
     KERNEL /casper/vmlinuz
-    APPEND initrd=/casper/initrd boot=casper quiet splash
+    APPEND $KERNEL_PARAMS
+EOF
+
+
+# Create isolinux.cfg with verbose boot (no quiet splash, console output)
+cat <<EOF | sudo tee isolinux/isolinux.cfg
+UI vesamenu.c32
+DEFAULT live
+PROMPT 0
+TIMEOUT 50
+
+MENU TITLE Cloudify OS Boot Menu
+
+LABEL live
+    MENU LABEL Try Cloudify OS (verbose)
+    KERNEL /casper/vmlinuz
+    APPEND initrd=/casper/initrd boot=casper console=ttyS0,115200n8
 EOF
 
 # Prepare EFI boot image using grub-mkstandalone
 echo "[4/5] Creating EFI boot image..."
-mkdir -p iso/EFI/BOOT
+mkdir -p EFI/BOOT
 
-# Create a standalone GRUB EFI image
+# Create standalone GRUB EFI image
 grub-mkstandalone \
     --format=x86_64-efi \
     --output=bootx64.efi \
@@ -52,7 +73,7 @@ grub-mkstandalone \
     --fonts="" \
     "boot/grub/grub.cfg=isolinux/isolinux.cfg"
 
-# Create FAT image for EFI boot
+# Create FAT EFI image
 dd if=/dev/zero of=efiboot.img bs=1M count=20
 mkfs.vfat efiboot.img
 mmd -i efiboot.img ::/EFI
@@ -80,7 +101,6 @@ sudo xorriso -as mkisofs \
 
 echo ""
 echo "✅ ISO created successfully at: $BUILD_DIR/$ISO_NAME"
-echo "✅ You can now test using:"
-echo ""
-echo "qemu-system-x86_64 -m 2048 -cdrom $BUILD_DIR/$ISO_NAME"
+echo "✅ Test using:"
+echo "qemu-system-x86_64 -m 2048 -serial mon:stdio -cdrom $BUILD_DIR/$ISO_NAME"
 echo ""
