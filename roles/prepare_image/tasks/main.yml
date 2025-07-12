@@ -1,0 +1,32 @@
+---
+- name: Create boot and ISO directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ lookup('env','PWD') }}/build/image/casper"
+    - "{{ lookup('env','PWD') }}/build/image/isolinux"
+
+- name: Copy kernel and initramfs from chroot
+  copy:
+    remote_src: true
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: "{{ chroot_path }}/boot/vmlinuz", dest: "{{ image_path }}/casper/vmlinuz" }
+    - { src: "{{ chroot_path }}/boot/initrd.img", dest: "{{ image_path }}/casper/initrd" }
+  vars:
+    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
+    image_path: "{{ lookup('env','PWD') }}/build/image"
+
+- name: Create squashfs of chroot
+  command: >
+    mksquashfs {{ chroot_path }}
+    {{ image_path }}/casper/filesystem.squashfs
+    -e boot
+  args:
+    creates: "{{ image_path }}/casper/filesystem.squashfs"
+  vars:
+    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
+    image_path: "{{ lookup('env','PWD') }}/build/image"

@@ -1,0 +1,33 @@
+---
+- name: Ensure required packages are installed
+  apt:
+    name:
+      - debootstrap
+      - squashfs-tools
+      - xorriso
+      - grub-pc-bin
+      - grub-efi-amd64-bin
+      - isolinux
+      - syslinux-utils
+      - systemd-container
+    state: present
+    update_cache: true
+
+- name: Create build directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ lookup('env','PWD') }}/build"
+    - "{{ lookup('env','PWD') }}/build/chroot"
+    - "{{ lookup('env','PWD') }}/build/image"
+
+- name: Bootstrap base system
+  command: >
+    debootstrap --arch={{ ARCH }}
+    {{ DISTRIBUTION }}
+    {{ lookup('env','PWD') }}/build/chroot
+    {{ UBUNTU_MIRROR }}
+  args:
+    creates: "{{ lookup('env','PWD') }}/build/chroot/bin/bash"

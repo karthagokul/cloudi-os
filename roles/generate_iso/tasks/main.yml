@@ -1,0 +1,50 @@
+---
+- name: Create EFI and boot directories
+  file:
+    path: "{{ image_path }}/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - boot/grub
+    - EFI/boot
+  vars:
+    image_path: "{{ lookup('env','PWD') }}/build/image"
+
+- name: Copy isolinux and related boot files
+  copy:
+    remote_src: true
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: "/usr/lib/ISOLINUX/isolinux.bin", dest: "{{ image_path }}/isolinux/isolinux.bin" }
+    - { src: "/usr/lib/syslinux/modules/bios/ldlinux.c32", dest: "{{ image_path }}/isolinux/ldlinux.c32" }
+  vars:
+    image_path: "{{ lookup('env','PWD') }}/build/image"
+
+- name: Copy GRUB EFI binary
+  copy:
+    remote_src: true
+    src: "/usr/lib/grub/x86_64-efi/monolithic/grubx64.efi"
+    dest: "{{ image_path }}/EFI/boot/bootx64.efi"
+  vars:
+    image_path: "{{ lookup('env','PWD') }}/build/image"
+
+- name: Generate ISO with xorriso
+  command: >
+    xorriso -as mkisofs
+    -iso-level 3
+    -o {{ iso_output }}
+    -full-iso9660-filenames
+    -volid "CLOUDIFY_OS"
+    -eltorito-boot isolinux/isolinux.bin
+    -eltorito-catalog isolinux/boot.cat
+    -no-emul-boot -boot-load-size 4 -boot-info-table
+    --eltorito-alt-boot
+    -e EFI/boot/bootx64.efi
+    -no-emul-boot
+    -isohybrid-gpt-basdat
+    -isohybrid-apm-hfsplus
+    {{ image_path }}
+  vars:
+    image_path: "{{ lookup('env','PWD') }}/build/image"
+    iso_output: "{{ lookup('env','PWD') }}/build/{{ ISO_NAME | default('cloudify.iso') }}"

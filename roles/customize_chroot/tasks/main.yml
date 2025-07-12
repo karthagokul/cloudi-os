@@ -1,0 +1,45 @@
+---
+- name: Ensure /proc, /sys, /dev, /run are mounted in chroot
+  mount:
+    path: "{{ chroot_path }}/{{ item.mount }}"
+    src: "{{ item.src }}"
+    fstype: bind
+    opts: bind
+    state: mounted
+  loop:
+    - { mount: "proc", src: "/proc" }
+    - { mount: "sys",  src: "/sys" }
+    - { mount: "dev",  src: "/dev" }
+    - { mount: "run",  src: "/run" }
+  vars:
+    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
+
+- name: Copy configuration files into chroot
+  copy:
+    src: "{{ item }}"
+    dest: "{{ chroot_path }}/tmp/"
+    mode: '0755'
+  with_fileglob:
+    - "{{ playbook_dir }}/../cloudify-os-main/chroot_scripts/*.sh"
+    - "{{ playbook_dir }}/../cloudify-os-main/common_config.sh"
+    - "{{ playbook_dir }}/../cloudify-os-main/chroot_scripts/chroot_configure.sh"
+  vars:
+    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
+
+- name: Run chroot_configure.sh inside chroot
+  command: chroot {{ chroot_path }} /bin/bash /tmp/chroot_configure.sh
+  vars:
+    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
+
+- name: Unmount /proc, /sys, /dev, /run from chroot
+  mount:
+    path: "{{ chroot_path }}/{{ item }}"
+    state: unmounted
+    force: true
+  loop:
+    - proc
+    - sys
+    - dev
+    - run
+  vars:
+    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
