@@ -48,8 +48,9 @@
     plank gnome-themes-extra gtk2-engines-murrine
     dbus-x11 mesa-utils libgl1-mesa-dri
     mesa-vulkan-drivers xserver-xorg-video-qxl xserver-xorg-input-all
-    pulseaudio libpulse0 pavucontrol policykit-1-gnome xfce4-session
+    pulseaudio libpulse0 pavucontrol policykit-1-gnome xfce4-session xserver-xorg-video-all xserver-xorg-video-vesa libgl1-mesa-dri 
   become: true
+  
 
 - name: Install kernel and headers inside chroot (no recommends)
   command: chroot {{ chroot_dir }} apt-get install -y --no-install-recommends linux-generic linux-headers-generic
