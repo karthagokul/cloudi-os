@@ -1,5 +1,5 @@
 ---
-- name: Create boot and ISO directories
+- name: Create image directories
   file:
     path: "{{ item }}"
     state: directory
@@ -7,17 +7,35 @@
   loop:
     - "{{ lookup('env','PWD') }}/build/image/casper"
     - "{{ lookup('env','PWD') }}/build/image/isolinux"
+    - "{{ lookup('env','PWD') }}/build/image/install"
 
-- name: Copy kernel and initramfs from chroot
+- name: Find vmlinuz-* in chroot
+  find:
+    paths: "{{ chroot_path }}/boot"
+    patterns: "vmlinuz-*"
+    file_type: file
+  register: kernel_files
+  vars:
+    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
+
+- name: Find initrd.img-* in chroot
+  find:
+    paths: "{{ chroot_path }}/boot"
+    patterns: "initrd.img-*"
+    file_type: file
+  register: initrd_files
+  vars:
+    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
+
+- name: Copy kernel and initrd to image
   copy:
     remote_src: true
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
   loop:
-    - { src: "{{ chroot_path }}/boot/vmlinuz", dest: "{{ image_path }}/casper/vmlinuz" }
-    - { src: "{{ chroot_path }}/boot/initrd.img", dest: "{{ image_path }}/casper/initrd" }
+    - { src: "{{ kernel_files.files[0].path }}", dest: "{{ image_path }}/casper/vmlinuz" }
+    - { src: "{{ initrd_files.files[0].path }}", dest: "{{ image_path }}/casper/initrd" }
   vars:
-    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
     image_path: "{{ lookup('env','PWD') }}/build/image"
 
 - name: Create squashfs of chroot

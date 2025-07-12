@@ -1,0 +1,60 @@
+- name: Set hostname inside chroot
+  copy:
+    content: "cloudify-os-live\n"
+    dest: "{{ chroot_dir }}/etc/hostname"
+
+- name: Configure apt sources inside chroot
+  copy:
+    content: "deb http://archive.ubuntu.com/ubuntu/ {{ distribution | default('jammy') }} main restricted universe multiverse\n"
+    dest: "{{ chroot_dir }}/etc/apt/sources.list"
+
+- name: Update apt cache inside chroot
+  command: chroot {{ chroot_dir }} apt-get update
+  become: true
+
+- name: Install systemd-sysv inside chroot
+  command: chroot {{ chroot_dir }} apt-get install -y systemd-sysv
+  become: true
+
+- name: Upgrade packages inside chroot
+  command: chroot {{ chroot_dir }} apt-get dist-upgrade -y
+  become: true
+
+- name: Generate machine-id using chroot
+  command: chroot {{ chroot_dir }} dbus-uuidgen
+  register: machine_id
+  changed_when: true
+
+- name: Write machine-id to /etc/machine-id inside chroot
+  copy:
+    content: "{{ machine_id.stdout + '\n' }}"
+    dest: "{{ chroot_dir }}/etc/machine-id"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Symlink machine-id to /var/lib/dbus/machine-id
+  file:
+    src: /etc/machine-id
+    dest: "{{ chroot_dir }}/var/lib/dbus/machine-id"
+    state: link
+    force: true
+    
+- name: Divert /sbin/initctl inside chroot if not already diverted
+  command: chroot {{ chroot_dir }} dpkg-divert --local --rename --add /sbin/initctl
+  register: initctl_divert
+  failed_when: false
+  changed_when: "'diverting' in initctl_divert.stdout"
+
+
+- name: Remove original /sbin/initctl if exists
+  file:
+    path: "{{ chroot_dir }}/sbin/initctl"
+    state: absent
+
+- name: Create /sbin/initctl symlink to /bin/true
+  file:
+    src: /bin/true
+    dest: "{{ chroot_dir }}/sbin/initctl"
+    state: link
+    force: true

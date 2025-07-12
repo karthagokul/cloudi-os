@@ -1,0 +1,41 @@
+- name: Optimize initramfs settings for faster boot (MODULES=most, COMPRESS=zstd)
+  lineinfile:
+    path: "{{ chroot_dir }}/etc/initramfs-tools/initramfs.conf"
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+    create: yes
+  loop:
+    - { key: 'MODULES', value: 'most' }
+    - { key: 'COMPRESS', value: 'zstd' }
+
+- name: Update initramfs inside chroot
+  command: chroot {{ chroot_dir }} update-initramfs -u
+  become: true
+
+- name: Disable unneeded services inside chroot
+  command: chroot {{ chroot_dir }} systemctl disable {{ item }}
+  loop:
+    - bluetooth
+    - avahi-daemon
+    - ModemManager
+    - cups
+    - apport
+  ignore_errors: yes
+  become: true
+
+- name: Mask sleep-related targets
+  command: chroot {{ chroot_dir }} systemctl mask {{ item }}
+  loop:
+    - sleep.target
+    - suspend.target
+    - hibernate.target
+    - hybrid-sleep.target
+  ignore_errors: yes
+  become: true
+
+- name: Enable LightDM and NetworkManager
+  command: chroot {{ chroot_dir }} systemctl enable {{ item }}
+  loop:
+    - lightdm
+    - NetworkManager
+  become: true

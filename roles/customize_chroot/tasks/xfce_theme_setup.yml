@@ -1,0 +1,119 @@
+- name: Ensure git is installed inside chroot
+  command: chroot {{ chroot_dir }} apt-get install -y git
+  become: true
+
+- name: Clone and install WhiteSur GTK theme
+  block:
+    - name: Remove old WhiteSur GTK theme if exists
+      file:
+        path: "{{ chroot_dir }}/opt/WhiteSur-gtk-theme"
+        state: absent
+
+    - name: Clone WhiteSur GTK theme repo
+      command: chroot {{ chroot_dir }} git clone https://github.com/vinceliuice/WhiteSur-gtk-theme.git /opt/WhiteSur-gtk-theme
+      become: true
+
+    - name: Install WhiteSur GTK theme
+      command: chroot {{ chroot_dir }} /opt/WhiteSur-gtk-theme/install.sh -d /usr/share/themes -c Dark -t xfwm --normal --round
+      ignore_errors: yes
+      become: true
+
+- name: Clone and install WhiteSur icon theme
+  block:
+    - name: Remove old WhiteSur icon theme if exists
+      file:
+        path: "{{ chroot_dir }}/opt/WhiteSur-icon-theme"
+        state: absent
+
+    - name: Clone WhiteSur icon theme repo
+      command: chroot {{ chroot_dir }} git clone https://github.com/vinceliuice/WhiteSur-icon-theme.git /opt/WhiteSur-icon-theme
+      become: true
+
+    - name: Install WhiteSur icon theme
+      command: chroot {{ chroot_dir }} /opt/WhiteSur-icon-theme/install.sh -d /usr/share/icons
+      ignore_errors: yes
+      become: true
+
+- name: Set XFCE appearance at startup using autostart
+  copy:
+    dest: "{{ chroot_dir }}/home/ubuntu/.config/autostart/set-xfce-theme.desktop"
+    content: |
+      [Desktop Entry]
+      Type=Application
+      Exec=sh -c "xfconf-query -c xsettings -p /Net/ThemeName -s 'WhiteSur-Dark'; \
+                  xfconf-query -c xsettings -p /Net/IconThemeName -s 'WhiteSur-dark'; \
+                  xfconf-query -c xsettings -p /Net/CursorThemeName -s 'Adwaita'"
+      Hidden=false
+      X-GNOME-Autostart-enabled=true
+      Name=Set XFCE Theme
+    owner: 1000
+    group: 1000
+    mode: '0644'
+
+
+- name: Disable XFCE session saving
+  copy:
+    dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfce4-session/xfce4-session.xml"
+    content: |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <xfce4-session>
+        <property name="SaveOnExit" type="bool" value="false"/>
+      </xfce4-session>
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+- name: Enable Plank dock autostart
+  copy:
+    dest: "{{ chroot_dir }}/home/ubuntu/.config/autostart/plank.desktop"
+    content: |
+      [Desktop Entry]
+      Type=Application
+      Exec=plank
+      Hidden=false
+      NoDisplay=false
+      X-GNOME-Autostart-enabled=true
+      Name=Plank
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+- name: Set XFCE session as default in .xsession
+  copy:
+    dest: "{{ chroot_dir }}/home/ubuntu/.xsession"
+    content: "xfce4-session\n"
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Set .dmrc to configure LightDM for XFCE
+  copy:
+    dest: "{{ chroot_dir }}/home/ubuntu/.dmrc"
+    content: |
+      [Desktop]
+      Session=xfce
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+- name: Ensure LightDM is set as default display manager
+  copy:
+    dest: "{{ chroot_dir }}/etc/X11/default-display-manager"
+    content: "/usr/sbin/lightdm\n"
+
+- name: Ensure xfce.desktop session file exists
+  stat:
+    path: "{{ chroot_dir }}/usr/share/xsessions/xfce.desktop"
+  register: xfce_session_check
+
+- name: Install xfce4-session if session file is missing
+  command: chroot {{ chroot_dir }} apt-get install -y xfce4-session
+  when: not xfce_session_check.stat.exists
+
+- name: Ensure dbus-launch is exported in user .profile
+  lineinfile:
+    dest: "{{ chroot_dir }}/home/ubuntu/.profile"
+    line: "export $(dbus-launch)"
+    owner: ubuntu
+    group: ubuntu
+    state: present

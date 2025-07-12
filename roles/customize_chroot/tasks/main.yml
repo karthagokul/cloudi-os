@@ -14,32 +14,68 @@
   vars:
     chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
 
-- name: Copy configuration files into chroot
+- name: Show CHROOT_DIR and current working directory
+  debug:
+    msg: >
+      CHROOT_DIR is: {{ CHROOT_DIR }},
+      PWD is: {{ lookup('env', 'PWD') }},
+      CHROOT_Script  is : {{ lookup('env', 'PWD') }}/cloudify-os-main/chroot_scripts/,
+
+- name: Copy entire chroot_scripts folder into chroot
   copy:
-    src: "{{ item }}"
-    dest: "{{ chroot_path }}/tmp/"
+    src: "{{ lookup('env', 'PWD') }}/cloudify-os-main/chroot_scripts/"
+    dest: "{{ CHROOT_DIR }}/tmp/chroot_scripts/"
     mode: '0755'
-  with_fileglob:
-    - "{{ playbook_dir }}/../cloudify-os-main/chroot_scripts/*.sh"
-    - "{{ playbook_dir }}/../cloudify-os-main/common_config.sh"
-    - "{{ playbook_dir }}/../cloudify-os-main/chroot_scripts/chroot_configure.sh"
-  vars:
-    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
 
-- name: Run chroot_configure.sh inside chroot
-  command: chroot {{ chroot_path }} /bin/bash /tmp/chroot_configure.sh
-  vars:
-    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
 
-- name: Unmount /proc, /sys, /dev, /run from chroot
-  mount:
-    path: "{{ chroot_path }}/{{ item }}"
-    state: unmounted
-    force: true
+- name: Debug - Verify chroot_dir existence and permissions
+  ansible.builtin.stat:
+    path: "{{ CHROOT_DIR }}"
+  register: chroot_dir_stat
+  become: true
+
+- name: Debug - Show chroot_dir details
+  debug:
+    msg: "Chroot directory: {{ chroot_dir_stat }}"
+
+- name: Run base system setup
+  include_tasks: prepare_base.yml
+  vars:
+    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
+
+- name: Install locale, keyboard, and essential packages
+  include_tasks: install_packages.yml
+  vars:
+    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
+
+- name: Configure User & LightDM
+  include_tasks: configure_user_and_lightdm.yml
+  vars:
+    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
+
+- name: Optimize system and configure services
+  include_tasks: optimize_and_services.yml
+  vars:
+    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
+
+#- name: Apply XFCE WhiteSur theme and session settings
+#  include_tasks: xfce_theme_setup.yml
+#  vars:
+#    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
+
+#- name: Perform final XFCE cleanup and system tuning
+#  include_tasks: final_cleanup.yml
+#  vars:
+#    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
+
+
+- name: Unmount virtual filesystems from chroot
+  shell: "umount -lf {{ chroot_path }}/{{ item }}"
   loop:
     - proc
     - sys
     - dev
     - run
+  ignore_errors: true
   vars:
     chroot_path: "{{ lookup('env','PWD') }}/build/chroot"

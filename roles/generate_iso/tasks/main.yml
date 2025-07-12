@@ -1,16 +1,29 @@
 ---
-- name: Create EFI and boot directories
-  file:
-    path: "{{ image_path }}/{{ item }}"
-    state: directory
-    mode: '0755'
-  loop:
-    - boot/grub
-    - EFI/boot
-  vars:
+- name: Set image and ISO paths
+  set_fact:
     image_path: "{{ lookup('env','PWD') }}/build/image"
+    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
+    iso_output: "{{ lookup('env','PWD') }}/build/{{ ISO_NAME | default('cloudify.iso') }}"
 
-- name: Copy isolinux and related boot files
+# 1. Rebuild SquashFS with compression and write filesystem.size
+- name: Create SquashFS from chroot
+  command: >
+    mksquashfs {{ chroot_path }} {{ image_path }}/casper/filesystem.squashfs
+    -noappend -wildcards -comp xz -e boot
+  args:
+    creates: "{{ image_path }}/casper/filesystem.squashfs"
+
+- name: Write filesystem.size
+  shell: du -sx --block-size=1 "{{ chroot_path }}" | cut -f1
+  register: fs_size
+
+- name: Write filesystem.size file
+  copy:
+    dest: "{{ image_path }}/casper/filesystem.size"
+    content: "{{ fs_size.stdout }}"
+
+# 2. Copy isolinux and BIOS files
+- name: Copy BIOS isolinux boot files
   copy:
     remote_src: true
     src: "{{ item.src }}"
@@ -18,33 +31,74 @@
   loop:
     - { src: "/usr/lib/ISOLINUX/isolinux.bin", dest: "{{ image_path }}/isolinux/isolinux.bin" }
     - { src: "/usr/lib/syslinux/modules/bios/ldlinux.c32", dest: "{{ image_path }}/isolinux/ldlinux.c32" }
-  vars:
-    image_path: "{{ lookup('env','PWD') }}/build/image"
+    - { src: "/usr/lib/syslinux/modules/bios/libcom32.c32", dest: "{{ image_path }}/isolinux/libcom32.c32" }
+    - { src: "/usr/lib/syslinux/modules/bios/vesamenu.c32", dest: "{{ image_path }}/isolinux/vesamenu.c32" }
+    - { src: "/usr/lib/syslinux/modules/bios/libutil.c32", dest: "{{ image_path }}/isolinux/libutil.c32" }
 
-- name: Copy GRUB EFI binary
+- name: Create empty boot.cat
+  file:
+    path: "{{ image_path }}/isolinux/boot.cat"
+    state: touch
+    mode: '0644'
+
+# 3. Write isolinux.cfg
+- name: Write isolinux.cfg
   copy:
-    remote_src: true
-    src: "/usr/lib/grub/x86_64-efi/monolithic/grubx64.efi"
-    dest: "{{ image_path }}/EFI/boot/bootx64.efi"
-  vars:
-    image_path: "{{ lookup('env','PWD') }}/build/image"
+    dest: "{{ image_path }}/isolinux/isolinux.cfg"
+    content: |
+      UI vesamenu.c32
+      DEFAULT live
+      PROMPT 0
+      TIMEOUT 50
 
-- name: Generate ISO with xorriso
+      MENU TITLE Cloudify OS Boot Menu
+
+      LABEL live
+          MENU LABEL Try Cloudify OS
+          KERNEL /casper/vmlinuz
+          APPEND initrd=/casper/initrd boot=casper quiet splash
+    mode: '0644'
+
+# 4. Create EFI boot image (efiboot.img with bootx64.efi inside)
+- name: Create GRUB EFI standalone binary
+  command: >
+    grub-mkstandalone
+    --format=x86_64-efi
+    --output={{ image_path }}/bootx64.efi
+    --locales=""
+    --fonts=""
+    "boot/grub/grub.cfg={{ image_path }}/isolinux/isolinux.cfg"
+
+- name: Create blank efiboot.img
+  command: dd if=/dev/zero of={{ image_path }}/efiboot.img bs=1M count=20
+  args:
+    creates: "{{ image_path }}/efiboot.img"
+
+- name: Format efiboot.img as vfat
+  command: mkfs.vfat {{ image_path }}/efiboot.img
+
+- name: Create EFI/BOOT folders inside efiboot.img
+  command: mmd -i {{ image_path }}/efiboot.img ::/EFI ::/EFI/BOOT
+
+- name: Copy bootx64.efi into efiboot.img
+  command: >
+    mcopy -vi {{ image_path }}/efiboot.img
+    {{ image_path }}/bootx64.efi ::/EFI/BOOT/
+
+# 5. Generate ISO with xorriso
+- name: Generate ISO using xorriso
   command: >
     xorriso -as mkisofs
     -iso-level 3
-    -o {{ iso_output }}
     -full-iso9660-filenames
-    -volid "CLOUDIFY_OS"
-    -eltorito-boot isolinux/isolinux.bin
-    -eltorito-catalog isolinux/boot.cat
-    -no-emul-boot -boot-load-size 4 -boot-info-table
-    --eltorito-alt-boot
-    -e EFI/boot/bootx64.efi
-    -no-emul-boot
+    -volid "Cloudify_OS"
+    -output "{{ iso_output }}"
+    -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin
+    -c isolinux/boot.cat
+    -b isolinux/isolinux.bin
+        -no-emul-boot -boot-load-size 4 -boot-info-table
+    -eltorito-alt-boot
+    -e efiboot.img
+        -no-emul-boot
     -isohybrid-gpt-basdat
-    -isohybrid-apm-hfsplus
-    {{ image_path }}
-  vars:
-    image_path: "{{ lookup('env','PWD') }}/build/image"
-    iso_output: "{{ lookup('env','PWD') }}/build/{{ ISO_NAME | default('cloudify.iso') }}"
+    "{{ image_path }}"
