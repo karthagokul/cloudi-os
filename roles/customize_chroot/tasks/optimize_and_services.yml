@@ -39,3 +39,7 @@
     - lightdm
     - NetworkManager
   become: true
+
+- name: Set graphical target as default (GUI login)
+  command: chroot {{ chroot_dir }} systemctl set-default graphical.target
+  become: true

@@ -56,7 +56,7 @@
       LABEL live
           MENU LABEL Try Cloudify OS
           KERNEL /casper/vmlinuz
-          APPEND initrd=/casper/initrd boot=casper quiet splash
+          APPEND initrd=/casper/initrd boot=casper console=ttyS0,115200n8
     mode: '0644'
 
 # 4. Create EFI boot image (efiboot.img with bootx64.efi inside)
