@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  ansible-runner:
+    build: .
+    container_name: ansible-runner
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
+    tty: true
+    stdin_open: true
+    privileged: true  # Required for chroot
+

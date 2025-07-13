@@ -21,13 +21,6 @@
       PWD is: {{ lookup('env', 'PWD') }},
       CHROOT_Script  is : {{ lookup('env', 'PWD') }}/cloudify-os-main/chroot_scripts/,
 
-- name: Copy entire chroot_scripts folder into chroot
-  copy:
-    src: "{{ lookup('env', 'PWD') }}/cloudify-os-main/chroot_scripts/"
-    dest: "{{ CHROOT_DIR }}/tmp/chroot_scripts/"
-    mode: '0755'
-
-
 - name: Debug - Verify chroot_dir existence and permissions
   ansible.builtin.stat:
     path: "{{ CHROOT_DIR }}"
@@ -58,10 +51,10 @@
   vars:
     chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
 
-#- name: Apply XFCE WhiteSur theme and session settings
-#  include_tasks: xfce_theme_setup.yml
-#  vars:
-#    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
+- name: Apply XFCE WhiteSur theme and session settings
+  include_tasks: xfce_theme_setup.yml
+  vars:
+    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
 
 #- name: Perform final XFCE cleanup and system tuning
 #  include_tasks: final_cleanup.yml

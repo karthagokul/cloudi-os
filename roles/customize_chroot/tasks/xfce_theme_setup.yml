@@ -1,38 +1,63 @@
 - name: Ensure git is installed inside chroot
   command: chroot {{ chroot_dir }} apt-get install -y git
   become: true
+- name: Clone Qogir GTK theme into chroot
+  git:
+    repo: "https://github.com/vinceliuice/Qogir-theme.git"
+    dest: "{{ chroot_dir }}/opt/Qogir-theme"
+    version: master
 
-- name: Clone and install WhiteSur GTK theme
+- name: Make install script executable
+  file:
+    path: "{{ chroot_dir }}/opt/Qogir-theme/install.sh"
+    mode: '0755'
+
+- name: Ensure XFCE per-channel XML config path exists
+  file:
+    path: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml"
+    state: directory
+    owner: 1000
+    group: 1000
+    mode: '0755'
+    recurse: yes
+    
+- name: Run Qogir GTK theme installer inside chroot
+  command: >
+    chroot {{ chroot_dir }} bash -c "cd /opt/Qogir-theme && ./install.sh -d /usr/share/themes"
+  register: qogir_install
+  failed_when: qogir_install.rc != 0 and 'already exists' not in qogir_install.stdout
+  changed_when: "'Installing Qogir' in qogir_install.stdout"
+
+- name: Set Qogir as default GTK and window manager theme
   block:
-    - name: Remove old WhiteSur GTK theme if exists
-      file:
-        path: "{{ chroot_dir }}/opt/WhiteSur-gtk-theme"
-        state: absent
+    - name: Set GTK theme
+      copy:
+        dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml"
+        content: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <channel name="xsettings" version="1.0">
+            <property name="Net" type="empty">
+              <property name="ThemeName" type="string" value="Qogir-dark"/>
+            </property>
+          </channel>
+    - name: Set window manager theme (xfwm)
+      copy:
+        dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
+        content: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <channel name="xfwm4" version="1.0">
+            <property name="general" type="empty">
+              <property name="theme" type="string" value="Qogir-dark"/>
+            </property>
+          </channel>
 
-    - name: Clone WhiteSur GTK theme repo
-      command: chroot {{ chroot_dir }} git clone https://github.com/vinceliuice/WhiteSur-gtk-theme.git /opt/WhiteSur-gtk-theme
-      become: true
+- name: Fix ownership of ubuntu user config files
+  file:
+    path: "{{ chroot_dir }}/home/ubuntu/.config"
+    owner: 1000
+    group: 1000
+    recurse: yes
 
-    - name: Install WhiteSur GTK theme
-      command: chroot {{ chroot_dir }} /opt/WhiteSur-gtk-theme/install.sh -d /usr/share/themes -c Dark -t xfwm --normal --round
-      ignore_errors: yes
-      become: true
-
-- name: Clone and install WhiteSur icon theme
-  block:
-    - name: Remove old WhiteSur icon theme if exists
-      file:
-        path: "{{ chroot_dir }}/opt/WhiteSur-icon-theme"
-        state: absent
-
-    - name: Clone WhiteSur icon theme repo
-      command: chroot {{ chroot_dir }} git clone https://github.com/vinceliuice/WhiteSur-icon-theme.git /opt/WhiteSur-icon-theme
-      become: true
-
-    - name: Install WhiteSur icon theme
-      command: chroot {{ chroot_dir }} /opt/WhiteSur-icon-theme/install.sh -d /usr/share/icons
-      ignore_errors: yes
-      become: true
 
 - name: Set XFCE appearance at startup using autostart
   copy:
@@ -40,8 +65,8 @@
     content: |
       [Desktop Entry]
       Type=Application
-      Exec=sh -c "xfconf-query -c xsettings -p /Net/ThemeName -s 'WhiteSur-Dark'; \
-                  xfconf-query -c xsettings -p /Net/IconThemeName -s 'WhiteSur-dark'; \
+      Exec=sh -c "xfconf-query -c xsettings -p /Net/ThemeName -s 'Qogir-dark'; \
+                  xfconf-query -c xsettings -p /Net/IconThemeName -s 'Qogir-dark'; \
                   xfconf-query -c xsettings -p /Net/CursorThemeName -s 'Adwaita'"
       Hidden=false
       X-GNOME-Autostart-enabled=true
@@ -59,9 +84,10 @@
       <xfce4-session>
         <property name="SaveOnExit" type="bool" value="false"/>
       </xfce4-session>
-    owner: ubuntu
-    group: ubuntu
+    owner: 1000
+    group: 1000
     mode: '0644'
+
 
 - name: Enable Plank dock autostart
   copy:
@@ -74,16 +100,16 @@
       NoDisplay=false
       X-GNOME-Autostart-enabled=true
       Name=Plank
-    owner: ubuntu
-    group: ubuntu
+    owner: 1000
+    group: 1000
     mode: '0644'
 
 - name: Set XFCE session as default in .xsession
   copy:
     dest: "{{ chroot_dir }}/home/ubuntu/.xsession"
     content: "xfce4-session\n"
-    owner: ubuntu
-    group: ubuntu
+    owner: 1000
+    group: 1000
     mode: '0755'
 
 - name: Set .dmrc to configure LightDM for XFCE
@@ -92,8 +118,8 @@
     content: |
       [Desktop]
       Session=xfce
-    owner: ubuntu
-    group: ubuntu
+    owner: 1000
+    group: 1000
     mode: '0644'
 
 - name: Ensure LightDM is set as default display manager
@@ -114,6 +140,36 @@
   lineinfile:
     dest: "{{ chroot_dir }}/home/ubuntu/.profile"
     line: "export $(dbus-launch)"
-    owner: ubuntu
-    group: ubuntu
+    owner: 1000
+    group: 1000
     state: present
+
+- name: Copy default wallpaper into chroot
+  copy:
+    src: "{{ lookup('env', 'PWD') }}/cloudify-os-main/cloudify-wallpaper.png"
+    dest: "{{ chroot_dir }}/usr/share/backgrounds/xfce/cloudify-wallpaper.png"
+  become: true
+
+- name: Set default XFCE background for ubuntu user
+  copy:
+    dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml"
+    content: |
+      <?xml version="1.0" encoding="UTF-8"?>
+
+      <channel name="xfce4-desktop" version="1.0">
+        <property name="backdrop">
+          <property name="screen0">
+            <property name="monitor0">
+              <property name="image-path" type="string" value="/usr/share/backgrounds/xfce/cloudify-wallpaper.png"/>
+            </property>
+          </property>
+        </property>
+      </channel>
+  become: true
+
+- name: Set ownership of XFCE config
+  file:
+    path: "{{ chroot_dir }}/home/ubuntu/.config"
+    owner: 1000
+    group: 1000
+    recurse: yes
