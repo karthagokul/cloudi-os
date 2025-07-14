@@ -21,6 +21,7 @@ jobs:
 
     - name: 🔨 Build ISO inside Docker
       run: |
+        mkdir -p  ${{ github.workspace }}/build
         docker build -t cloudify-builder .
         docker run --rm --privileged\
           -v ${{ github.workspace }}:/workspace \

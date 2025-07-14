@@ -15,9 +15,15 @@
 # ==== Theme =====
 - name: Find all .tar.xz theme files
   find:
-    paths: "{ playbook_dir }/cloudify-os-main/themes"
+    paths: "{{ playbook_dir }}/cloudify-os-main/themes"
     patterns: "*.tar.xz"
   register: theme_archives
+
+- name: Print found theme files
+  debug:
+    msg: "Found theme archive: {{ item.path }}"
+  loop: "{{ theme_archives.files }}"
+  when: theme_archives.files | length > 0
 
 - name: Ensure /usr/share/themes exists inside chroot
   file:
@@ -25,20 +31,29 @@
     state: directory
     mode: '0755'
 
-- name: Extract all themes into chroot /usr/share/themes/
+- name: Extract theme archive into chroot
   unarchive:
     src: "{{ item.path }}"
-    dest: "{{ chroot_dir }}/usr/share/themes/"
+    dest: "{{ chroot_dir }}/usr/share/themes/{{ item.path | basename | regex_replace('\\.tar\\.xz$', '') }}"
     remote_src: yes
   loop: "{{ theme_archives.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
 
 # === ICON THEMES ===
 
 - name: Find all .tar.xz icon theme files
   find:
-    paths: "{ playbook_dir }/cloudify-os-main/icons/"
+    paths: "{{ playbook_dir }}/cloudify-os-main/icons/"
     patterns: "*.tar.xz"
   register: icon_theme_archives
+
+- name: Print found icon theme files
+  debug:
+    msg: "Found icon theme archive: {{ item.path }}"
+  loop: "{{ icon_theme_archives.files }}"
+  when: icon_theme_archives.files | length > 0
 
 - name: Ensure /usr/share/icons exists inside chroot
   file:
@@ -46,9 +61,13 @@
     state: directory
     mode: '0755'
 
-- name: Extract all icon themes into chroot /usr/share/icons/
-  unarchive:
-    src: "{{ item.path }}"
-    dest: "{{ chroot_dir }}/usr/share/icons/"
-    remote_src: yes
-  loop: "{{ icon_theme_archives.files }}"
+#Look like the files has problems , we shall do it later
+#- name: Extract icon theme archive into separate subfolders
+#  unarchive:
+#    src: "{{ item.path }}"
+#    dest: "{{ chroot_dir }}/usr/share/icons/{{ item.path | basename | regex_replace('\\.tar\\.xz$', '') }}"
+#    remote_src: yes
+#  loop: "{{ icon_theme_archives.files }}"
+#  loop_control:
+#    label: "{{ item.path }}"
+
