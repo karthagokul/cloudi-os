@@ -22,7 +22,7 @@ jobs:
     - name: 🔨 Build ISO inside Docker
       run: |
         docker build -t cloudify-builder .
-        docker run --rm \
+        docker run --rm --privileged\
           -v ${{ github.workspace }}:/workspace \
           cloudify-builder \
           ansible-playbook /workspace/playbook.yml
