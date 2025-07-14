@@ -8,7 +8,7 @@
 
 - name: Copy default wallpaper into chroot for user-level usage
   copy:
-    src: "{{ lookup('env', 'PWD') }}/cloudify-os-main/cloudify-wallpaper.png"
+    src: "{{ playbook_dir }}/cloudify-os-main/cloudify-wallpaper.png"
     dest: "{{ chroot_dir }}/usr/share/backgrounds/xfce/cloudify-wallpaper.png"
   become: true
 
@@ -25,18 +25,11 @@
     state: directory
     mode: '0755'
 
-- name: Ensure each theme subdirectory exists inside chroot before extracting
-  file:
-    path: "{{ chroot_dir }}/usr/share/themes/{{ item.path | basename | regex_replace('\\.tar\\.xz$', '') }}"
-    state: directory
-    mode: '0755'
-  loop: "{{ theme_archives.files }}"
-
 - name: Extract all themes into chroot /usr/share/themes/
   unarchive:
     src: "{{ item.path }}"
-    dest: "{{ chroot_dir }}/usr/share/themes/{{ item.path | basename | regex_replace('\\.tar\\.xz$', '') }}"
-    remote_src: no
+    dest: "{{ chroot_dir }}/usr/share/themes/"
+    remote_src: yes
   loop: "{{ theme_archives.files }}"
 
 # === ICON THEMES ===
@@ -53,16 +46,9 @@
     state: directory
     mode: '0755'
 
-- name: Ensure each icon subdirectory exists inside chroot before extracting
-  file:
-    path: "{{ chroot_dir }}/usr/share/icons/{{ item.path | basename | regex_replace('\\.tar\\.xz$', '') }}"
-    state: directory
-    mode: '0755'
-  loop: "{{ icon_theme_archives.files }}"
-
 - name: Extract all icon themes into chroot /usr/share/icons/
   unarchive:
     src: "{{ item.path }}"
-    dest: "{{ chroot_dir }}/usr/share/icons/{{ item.path | basename | regex_replace('\\.tar\\.xz$', '') }}"
-    remote_src: no
+    dest: "{{ chroot_dir }}/usr/share/icons/"
+    remote_src: yes
   loop: "{{ icon_theme_archives.files }}"
