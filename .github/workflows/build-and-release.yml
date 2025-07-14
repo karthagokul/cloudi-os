@@ -22,10 +22,11 @@ jobs:
     - name: Build ISO inside Docker
       run: |
         docker build -t cloudify-builder .
-        docker run --rm -v ${{ github.workspace }}/build:/build cloudify-builder
+
     - name: Run build
       run: |
-        docker run --rm -v ${{ github.workspace }}/build:/build cloudify-builder
+        docker run --rm \
+      -v ${{ github.workspace }}:/workspace ansible-playbook /workspace/playbook.yml
 
     - name: List ISO Output
       run: ls -lh build/
