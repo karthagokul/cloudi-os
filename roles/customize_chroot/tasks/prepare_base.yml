@@ -5,7 +5,7 @@
 
 - name: Configure apt sources inside chroot
   copy:
-    content: "deb http://archive.ubuntu.com/ubuntu/ {{ distribution | default('jammy') }} main restricted universe multiverse\n"
+    content: "deb http://archive.ubuntu.com/ubuntu/ {{ distribution | default('noble') }} main restricted universe multiverse\n"
     dest: "{{ chroot_dir }}/etc/apt/sources.list"
 
 - name: Update apt cache inside chroot

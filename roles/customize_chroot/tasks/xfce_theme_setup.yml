@@ -59,100 +59,15 @@
     recurse: yes
 
 
-- name: Set XFCE appearance at startup using autostart
-  copy:
-    dest: "{{ chroot_dir }}/home/ubuntu/.config/autostart/set-xfce-theme.desktop"
-    content: |
-      [Desktop Entry]
-      Type=Application
-      Exec=sh -c "xfconf-query -c xsettings -p /Net/ThemeName -s 'Qogir-dark'; \
-                  xfconf-query -c xsettings -p /Net/IconThemeName -s 'Qogir-dark'; \
-                  xfconf-query -c xsettings -p /Net/CursorThemeName -s 'Adwaita'"
-      Hidden=false
-      X-GNOME-Autostart-enabled=true
-      Name=Set XFCE Theme
-    owner: 1000
-    group: 1000
-    mode: '0644'
-
-
-- name: Disable XFCE session saving
-  copy:
-    dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfce4-session/xfce4-session.xml"
-    content: |
-      <?xml version="1.0" encoding="UTF-8"?>
-      <xfce4-session>
-        <property name="SaveOnExit" type="bool" value="false"/>
-      </xfce4-session>
-    owner: 1000
-    group: 1000
-    mode: '0644'
-
-
-- name: Enable Plank dock autostart
-  copy:
-    dest: "{{ chroot_dir }}/home/ubuntu/.config/autostart/plank.desktop"
-    content: |
-      [Desktop Entry]
-      Type=Application
-      Exec=plank
-      Hidden=false
-      NoDisplay=false
-      X-GNOME-Autostart-enabled=true
-      Name=Plank
-    owner: 1000
-    group: 1000
-    mode: '0644'
-
-- name: Set XFCE session as default in .xsession
-  copy:
-    dest: "{{ chroot_dir }}/home/ubuntu/.xsession"
-    content: "xfce4-session\n"
-    owner: 1000
-    group: 1000
-    mode: '0755'
-
-- name: Set .dmrc to configure LightDM for XFCE
-  copy:
-    dest: "{{ chroot_dir }}/home/ubuntu/.dmrc"
-    content: |
-      [Desktop]
-      Session=xfce
-    owner: 1000
-    group: 1000
-    mode: '0644'
-
-- name: Ensure LightDM is set as default display manager
-  copy:
-    dest: "{{ chroot_dir }}/etc/X11/default-display-manager"
-    content: "/usr/sbin/lightdm\n"
-
-- name: Ensure xfce.desktop session file exists
-  stat:
-    path: "{{ chroot_dir }}/usr/share/xsessions/xfce.desktop"
-  register: xfce_session_check
-
-- name: Install xfce4-session if session file is missing
-  command: chroot {{ chroot_dir }} apt-get install -y xfce4-session
-  when: not xfce_session_check.stat.exists
-
-- name: Ensure dbus-launch is exported in user .profile
-  lineinfile:
-    dest: "{{ chroot_dir }}/home/ubuntu/.profile"
-    line: "export $(dbus-launch)"
-    owner: 1000
-    group: 1000
-    state: present
-
 - name: Copy default wallpaper into chroot
   copy:
     src: "{{ lookup('env', 'PWD') }}/cloudify-os-main/cloudify-wallpaper.png"
-    dest: "{{ chroot_dir }}/usr/share/backgrounds/xfce/cloudify-wallpaper.png"
+    dest: "{{ chroot_dir }}/usr/share/xfce4/backdrops/cloudify-wallpaper.png"
   become: true
 
 - name: Set default XFCE background for ubuntu user
   copy:
-    dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml"
+    dest: "{{ chroot_dir }}/etc/xdg/xdg-xubuntu/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml"
     content: |
       <?xml version="1.0" encoding="UTF-8"?>
 
