@@ -15,7 +15,7 @@
 # ==== Theme =====
 - name: Find all .tar.xz theme files
   find:
-    paths: "{{ lookup('env', 'PWD') }}/cloudify-os-main/themes"
+    paths: "{ playbook_dir }/cloudify-os-main/themes"
     patterns: "*.tar.xz"
   register: theme_archives
 
@@ -36,7 +36,7 @@
 
 - name: Find all .tar.xz icon theme files
   find:
-    paths: "{{ lookup('env', 'PWD') }}/cloudify-os-main/icons/"
+    paths: "{ playbook_dir }/cloudify-os-main/icons/"
     patterns: "*.tar.xz"
   register: icon_theme_archives
 
