@@ -23,7 +23,7 @@ RUN useradd -m ansible && echo "ansible ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Set workdir
 WORKDIR /workspace
-COPY . /workspace/
+#COPY . /workspace/
 
 # Default command
 CMD [ "bash" ]
