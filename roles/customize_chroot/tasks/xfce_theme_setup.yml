@@ -59,27 +59,47 @@
     recurse: yes
 
 
-- name: Copy default wallpaper into chroot
-  copy:
-    src: "{{ lookup('env', 'PWD') }}/cloudify-os-main/cloudify-wallpaper.png"
-    dest: "{{ chroot_dir }}/usr/share/xfce4/backdrops/cloudify-wallpaper.png"
+- name: Ensure config directory exists for ubuntu user
+  file:
+    path: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml"
+    state: directory
+    mode: '0755'
+    owner: ubuntu
+    group: ubuntu
   become: true
 
-- name: Set default XFCE background for ubuntu user
+- name: Copy default wallpaper into chroot for user-level usage
   copy:
-    dest: "{{ chroot_dir }}/etc/xdg/xdg-xubuntu/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml"
+    src: "{{ lookup('env', 'PWD') }}/cloudify-os-main/cloudify-wallpaper.png"
+    dest: "{{ chroot_dir }}/usr/share/backgrounds/xfce/cloudify-wallpaper.png"
+  become: true
+
+- name: Set default XFCE background for ubuntu user in user config
+  copy:
+    dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml"
     content: |
       <?xml version="1.0" encoding="UTF-8"?>
-
       <channel name="xfce4-desktop" version="1.0">
         <property name="backdrop">
           <property name="screen0">
-            <property name="monitor0">
-              <property name="image-path" type="string" value="/usr/share/backgrounds/xfce/cloudify-wallpaper.png"/>
+            <property name="monitorVirtual">
+              <property name="workspace0">
+                <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/cloudify-wallpaper.png"/>
+                <property name="image-style" type="int" value="5"/>
+                <property name="color-style" type="int" value="0"/>
+              </property>
+              <property name="workspace1">
+                <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/cloudify-wallpaper.png"/>
+                <property name="image-style" type="int" value="5"/>
+                <property name="color-style" type="int" value="0"/>
+              </property>
             </property>
           </property>
         </property>
       </channel>
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
   become: true
 
 - name: Set ownership of XFCE config
