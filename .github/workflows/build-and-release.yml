@@ -28,13 +28,13 @@ jobs:
           ansible-playbook /workspace/playbook.yml
 
     - name: List ISO Output
-      run: ls -lh build/
+      run: "ls -lh {{ github.workspace }}build/"
 
     - name: Upload ISO to GitHub Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
       with:
         name: "Cloudify OS ${{ github.ref_name }}"
-        files: build/*.iso
+        files: "{{ github.workspace }}build/*.iso"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
