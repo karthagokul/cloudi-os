@@ -41,8 +41,7 @@
 
 - name: Install XFCE and system packages inside chroot
   command: >
-    chroot {{ chroot_dir }} apt-get install -y sudo casper initramfs-tools udev
-    xubuntu-desktop
+    chroot {{ chroot_dir }} apt-get install -y sudo casper initramfs-tools udev xubuntu-desktop plank
   become: true
   
 
