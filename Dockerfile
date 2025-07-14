@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     grub-efi-amd64-bin \
     grub-common \
     dosfstools \
+    mtools \
     grub2-common \
     rsync \
     git \
