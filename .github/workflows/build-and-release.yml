@@ -21,12 +21,9 @@ jobs:
 
     - name: Build ISO inside Docker
       run: |
-        mkdir -p  ${{ github.workspace }}/build
         docker build -t cloudify-builder .
-        docker run --rm --privileged\
-          -v ${{ github.workspace }}:/workspace \
-          cloudify-builder \
-          ansible-playbook /workspace/playbook.yml
+        docker run --rm --privileged -v ${{ github.workspace }}:/workspace cloudify-builder ansible-playbook /workspace/playbook.yml && ls build/
+
 
     - name: List ISO Output
       run: "ls -lh ${{ github.workspace }}/build/"
