@@ -1,6 +1,6 @@
 # Cloudi OS
 
-**Cloudi OS** is a fast, lightweight, and powerful Debian-based Linux distribution built for **cloud-native and AI developers**. With essential tools preinstalled, a clean XFCE interface, and full automation, Cloudi gives you a productive environment out of the box — whether you're building models, deploying containers, or coding in the cloud.
+Howdy  Cloudi ? **Cloudi OS** is a fast, lightweight, and powerful Debian-based Linux distribution built for **cloud-native and AI developers**. With essential tools preinstalled, a clean XFCE interface, and full automation, Cloudi gives you a productive environment out of the box — whether you're building models, deploying containers, or coding in the cloud.
 
 **DISCLAIMER : Just started, wait for the release iso files :)** 
 ---
