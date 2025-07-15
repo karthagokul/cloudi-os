@@ -127,6 +127,7 @@
     src: "{{ playbook_dir }}/cloudify-os-main/config/tilix.dconf"
     dest: "{{ chroot_dir }}/tmp/tilix.dconf"
 
-- name: Load Tilix config via dconf inside chroot
-  command: >
-    chroot {{ chroot_dir }} bash -c 'dconf load /com/gexperts/Tilix/ < /tmp/tilix.dconf'
+# Bug we need a better mechanism to do this at startup.
+#- name: Load Tilix config via dconf inside chroot
+#  command: >
+#    chroot {{ chroot_dir }} bash -c 'dconf load /com/gexperts/Tilix/ < /tmp/tilix.dconf'
