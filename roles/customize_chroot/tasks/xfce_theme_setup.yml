@@ -59,7 +59,7 @@
 
 - name: Create config directory
   ansible.builtin.file:
-    path: "{{ chroot_dir }}/home/ubuntu/.config/xfce4$ cat xfconf/xfce-perchannel-xml/"
+    path: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/"
     state: directory
     mode: '0755'
     recurse: yes 
@@ -68,5 +68,12 @@
   copy:
     src: "{{ playbook_dir }}/cloudify-os-main/config/xsettings.xml"
     dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml"
+    force: true 
+  become: true
+
+- name: Copy desktop settings as default
+  copy:
+    src: "{{ playbook_dir }}/cloudify-os-main/config/xfce4-desktop.xml"
+    dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml"
     force: true 
   become: true
