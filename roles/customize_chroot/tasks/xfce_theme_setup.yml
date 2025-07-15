@@ -67,6 +67,6 @@
 - name: Copy xsettings as default
   copy:
     src: "{{ playbook_dir }}/cloudify-os-main/config/xsettings.xml"
-    dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4$ cat xfconf/xfce-perchannel-xml/xsettings.xml"
+    dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml"
     force: true 
   become: true
