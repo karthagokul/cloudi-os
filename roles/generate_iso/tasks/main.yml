@@ -1,29 +1,41 @@
----
-- name: Set image and ISO paths
+# --- Setup basic paths used throughout the build ---
+- name: Set image and ISO paths as facts
   set_fact:
     image_path: "{{ lookup('env','PWD') }}/build/image"
     chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
     iso_output: "{{ lookup('env','PWD') }}/build/{{ ISO_NAME | default('cloudify.iso') }}"
 
-# 1. Rebuild SquashFS with compression and write filesystem.size
-- name: Create SquashFS from chroot
+# --- Clean up previous squashfs if it exists to ensure fresh rebuild ---
+- name: Remove existing filesystem.squashfs to force rebuild
+  file:
+    path: "{{ image_path }}/casper/filesystem.squashfs"
+    state: absent
+
+# -------------------------------------------
+# Step 1: Create compressed root filesystem
+# -------------------------------------------
+
+- name: Create SquashFS from chroot directory (excluding /boot)
   command: >
     mksquashfs {{ chroot_path }} {{ image_path }}/casper/filesystem.squashfs
     -noappend -wildcards -comp xz -e boot
   args:
     creates: "{{ image_path }}/casper/filesystem.squashfs"
 
-- name: Write filesystem.size
+- name: Calculate chroot filesystem size in bytes
   shell: du -sx --block-size=1 "{{ chroot_path }}" | cut -f1
   register: fs_size
 
-- name: Write filesystem.size file
+- name: Write filesystem.size metadata file (used by bootloader)
   copy:
     dest: "{{ image_path }}/casper/filesystem.size"
     content: "{{ fs_size.stdout }}"
 
-# 2. Copy isolinux and BIOS files
-- name: Copy BIOS isolinux boot files
+# --------------------------------------------------------
+# Step 2: Prepare BIOS boot files (ISOLINUX + modules)
+# --------------------------------------------------------
+
+- name: Copy required ISOLINUX and Syslinux BIOS modules to ISO
   copy:
     remote_src: true
     src: "{{ item.src }}"
@@ -35,14 +47,17 @@
     - { src: "/usr/lib/syslinux/modules/bios/vesamenu.c32", dest: "{{ image_path }}/isolinux/vesamenu.c32" }
     - { src: "/usr/lib/syslinux/modules/bios/libutil.c32", dest: "{{ image_path }}/isolinux/libutil.c32" }
 
-- name: Create empty boot.cat
+- name: Create empty boot.cat (required by ISOLINUX for BIOS boot)
   file:
     path: "{{ image_path }}/isolinux/boot.cat"
     state: touch
     mode: '0644'
 
-# 3. Write isolinux.cfg
-- name: Write isolinux.cfg
+# -----------------------------------------------
+# Step 3: Create ISOLINUX configuration for BIOS
+# -----------------------------------------------
+
+- name: Write ISOLINUX boot menu configuration (isolinux.cfg)
   copy:
     dest: "{{ image_path }}/isolinux/isolinux.cfg"
     content: |
@@ -59,8 +74,11 @@
           APPEND initrd=/casper/initrd boot=casper console=ttyS0,115200n8
     mode: '0644'
 
-# 4. Create EFI boot image (efiboot.img with bootx64.efi inside)
-- name: Create GRUB EFI standalone binary
+# ---------------------------------------------------
+# Step 4: Create EFI boot image (for UEFI systems)
+# ---------------------------------------------------
+
+- name: Generate standalone GRUB EFI boot binary (bootx64.efi)
   command: >
     grub-mkstandalone
     --format=x86_64-efi
@@ -69,24 +87,27 @@
     --fonts=""
     "boot/grub/grub.cfg={{ image_path }}/isolinux/isolinux.cfg"
 
-- name: Create blank efiboot.img
+- name: Create blank efiboot.img file (20MB FAT image)
   command: dd if=/dev/zero of={{ image_path }}/efiboot.img bs=1M count=20
   args:
     creates: "{{ image_path }}/efiboot.img"
 
-- name: Format efiboot.img as vfat
+- name: Format efiboot.img as FAT filesystem
   command: mkfs.vfat {{ image_path }}/efiboot.img
 
-- name: Create EFI/BOOT folders inside efiboot.img
+- name: Create required EFI/BOOT directories inside efiboot.img
   command: mmd -i {{ image_path }}/efiboot.img ::/EFI ::/EFI/BOOT
 
-- name: Copy bootx64.efi into efiboot.img
+- name: Copy bootx64.efi into efiboot.img under EFI/BOOT
   command: >
     mcopy -vi {{ image_path }}/efiboot.img
     {{ image_path }}/bootx64.efi ::/EFI/BOOT/
 
-# 5. Generate ISO with xorriso
-- name: Generate ISO using xorriso
+# ---------------------------------------------------------
+# Step 5: Generate final ISO image (BIOS + UEFI bootable)
+# ---------------------------------------------------------
+
+- name: Generate hybrid ISO with xorriso (supports BIOS + UEFI)
   command: >
     xorriso -as mkisofs
     -iso-level 3

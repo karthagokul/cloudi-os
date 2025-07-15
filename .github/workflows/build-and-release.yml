@@ -19,7 +19,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    - name: 🔨 Build ISO inside Docker
+    - name: Build ISO inside Docker
       run: |
         mkdir -p  ${{ github.workspace }}/build
         docker build -t cloudify-builder .

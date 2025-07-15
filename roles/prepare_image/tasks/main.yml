@@ -1,5 +1,13 @@
----
-- name: Create image directories
+# -------------------------------------------------------------
+# Step 0: Prepare image directory structure and cleanup
+# -------------------------------------------------------------
+
+- name: Ensure previous image directory is removed (clean build)
+  file:
+    path: "{{ lookup('env','PWD') }}/build/image"
+    state: absent
+
+- name: Recreate image directory structure (casper, isolinux, install)
   file:
     path: "{{ item }}"
     state: directory
@@ -9,7 +17,11 @@
     - "{{ lookup('env','PWD') }}/build/image/isolinux"
     - "{{ lookup('env','PWD') }}/build/image/install"
 
-- name: Find vmlinuz-* in chroot
+# -------------------------------------------------------------
+# Step 1: Locate kernel and initrd inside chroot/boot
+# -------------------------------------------------------------
+
+- name: Find vmlinuz-* kernel image in chroot/boot
   find:
     paths: "{{ chroot_path }}/boot"
     patterns: "vmlinuz-*"
@@ -18,7 +30,7 @@
   vars:
     chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
 
-- name: Find initrd.img-* in chroot
+- name: Find initrd.img-* initramfs image in chroot/boot
   find:
     paths: "{{ chroot_path }}/boot"
     patterns: "initrd.img-*"
@@ -27,7 +39,11 @@
   vars:
     chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
 
-- name: Copy kernel and initrd to image
+# -------------------------------------------------------------
+# Step 2: Copy kernel and initrd files into image/casper/
+# -------------------------------------------------------------
+
+- name: Copy kernel and initrd to image/casper directory
   copy:
     remote_src: true
     src: "{{ item.src }}"
@@ -38,7 +54,11 @@
   vars:
     image_path: "{{ lookup('env','PWD') }}/build/image"
 
-- name: Create squashfs of chroot
+# -------------------------------------------------------------
+# Step 3: Create a compressed squashfs image of the chroot
+# -------------------------------------------------------------
+
+- name: Create squashfs from chroot excluding /boot directory
   command: >
     mksquashfs {{ chroot_path }}
     {{ image_path }}/casper/filesystem.squashfs
