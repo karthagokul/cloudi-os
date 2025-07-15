@@ -1,11 +1,11 @@
-# 🧠 Cloudi OS
+# Cloudi OS
 
 **Cloudi OS** is a fast, lightweight, and powerful Debian-based Linux distribution built for **cloud-native and AI developers**. With essential tools preinstalled, a clean XFCE interface, and full automation, Cloudi gives you a productive environment out of the box — whether you're building models, deploying containers, or coding in the cloud.
 
 **DISCLAIMER : Just started, wait for the release iso files :)** 
 ---
 
-## 🚀 Features
+## Features
 
 - Based on the minimal Debian/Ubuntu ISO (low bloat)
 - Preinstalled Dev Tools: `Docker`, `Python`, `Pip`, `Jupyter`, `tmux`, `kubectl`, `git`, etc.
@@ -17,7 +17,7 @@
 
 ---
 
-## 🛠️ Build Locally with Docker
+## Build Locally with Docker
 
 ```bash
 git clone https://github.com/<your-org>/cloudi-os.git
@@ -31,11 +31,11 @@ docker run --rm \
   ansible-playbook /workspace/playbook.yml
 ```
 
-> ✅ ISO output: `build/image/cloudi-os.iso`
+> ISO output: `build/image/cloudi-os.iso`
 
 ---
 
-## ☁️ GitHub CI/CD Support
+## GitHub CI/CD Support
 
 Each time you push a tag (e.g., `v1.0.0`), GitHub Actions will:
 
@@ -45,7 +45,7 @@ Each time you push a tag (e.g., `v1.0.0`), GitHub Actions will:
 
 ---
 
-## 🎯 Use Cases
+## Use Cases
 
 - Developer machines and cloud IDEs
 - AI/ML offline dev environments
@@ -54,7 +54,7 @@ Each time you push a tag (e.g., `v1.0.0`), GitHub Actions will:
 
 ---
 
-## 📦 Tools You Can Add (Pluggable)
+## Tools You Can Add (Pluggable)
 
 Cloudi is modular. Customize your playbook to include:
 
