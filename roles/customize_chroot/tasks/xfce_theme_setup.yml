@@ -13,33 +13,18 @@
   become: true
 
 # ==== Theme =====
-- name: Find all .tar.xz theme files
-  find:
-    paths: "{{ playbook_dir }}/cloudify-os-main/themes"
-    patterns: "*.tar.xz"
-  register: theme_archives
 
-- name: Print found theme files
-  debug:
-    msg: "Found theme archive: {{ item.path }}"
-  loop: "{{ theme_archives.files }}"
-  when: theme_archives.files | length > 0
-
-- name: Ensure /usr/share/themes exists inside chroot
-  file:
-    path: "{{ chroot_dir }}/usr/share/themes"
+- name: Create destination directory for WhiteSur theme
+  ansible.builtin.file:
+    path: "{{ chroot_dir }}/usr/share/themes/WhiteSur"
     state: directory
     mode: '0755'
+    recurse: yes 
 
 - name: Extract theme archive into chroot
   unarchive:
-    src: "{{ item.path }}"
-    dest: "{{ chroot_dir }}/usr/share/themes/{{ item.path | basename | regex_replace('\\.tar\\.xz$', '') }}"
-    remote_src: yes
-  loop: "{{ theme_archives.files }}"
-  loop_control:
-    label: "{{ item.path }}"
-
+    src: "{{ playbook_dir }}/cloudify-os-main/themes/cloudi.tar.gz"
+    dest: "{{ chroot_dir }}/usr/share/themes/WhiteSur"
 
 # === ICON THEMES ===
 
