@@ -37,7 +37,7 @@
 - name: Extract theme archive into chroot
   unarchive:
     src: "{{ playbook_dir }}/cloudify-os-main/icons/cloudi.tar.gz"
-    dest: "{{ chroot_dir }}/usr/share/icons/WhiteSur"
+    dest: "{{ chroot_dir }}/usr/share/icons/"
 
 - name: Create config directory
   ansible.builtin.file:
@@ -106,3 +106,27 @@
     owner: 1000
     group: 1000
     mode: '0644'
+
+#Tilix
+- name: Install Tilix terminal emulator in chroot
+  command: >
+    chroot {{ chroot_dir }} apt-get install -y tilix fonts-firacode
+  become: true
+
+- name: Set Tilix as the default terminal emulator
+  copy:
+    dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/helpers.rc"
+    content: |
+      TerminalEmulator=tilix
+    owner: 1000
+    group: 1000
+    mode: '0644'
+
+- name: Copy Tilix dconf config
+  copy:
+    src: "{{ playbook_dir }}/cloudify-os-main/config/tilix.dconf"
+    dest: "{{ chroot_dir }}/tmp/tilix.dconf"
+
+- name: Load Tilix config via dconf inside chroot
+  command: >
+    chroot {{ chroot_dir }} bash -c 'dconf load /com/gexperts/Tilix/ < /tmp/tilix.dconf'

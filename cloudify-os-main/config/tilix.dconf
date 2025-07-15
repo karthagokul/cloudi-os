@@ -1,0 +1,30 @@
+[/com/gexperts/Tilix]
+default-session='default'
+quake-terminal-enabled=true
+theme-variant='dark'
+use-tabs=true
+tab-position='top'
+
+[/com/gexperts/Tilix/keybindings]
+session-add-down='<Shift><Ctrl>J'
+session-add-right='<Shift><Ctrl>L'
+session-close='<Shift><Ctrl>W'
+session-split-down='<Alt><Shift>J'
+session-split-right='<Alt><Shift>L'
+
+[/com/gexperts/Tilix/profiles]
+default='4f4f4f4f-4f4f-4f4f-4f4f-4f4f4f4f4f4f'
+
+[/com/gexperts/Tilix/profiles/4f4f4f4f-4f4f-4f4f-4f4f-4f4f4f4f4f4f]
+visible-name='Cloudify Dark'
+use-system-font=false
+font='Fira Code 11'
+use-theme-colors=false
+background-color='#1E1E2E'
+foreground-color='#D0D0D0'
+palette=['#1E1E2E', '#F38BA8', '#A6E3A1', '#F9E2AF', '#89B4FA', '#F5C2E7', '#94E2D5', '#BAC2DE', '#585B70', '#F38BA8', '#A6E3A1', '#F9E2AF', '#89B4FA', '#F5C2E7', '#94E2D5', '#A6ADC8']
+use-transparent-background=true
+background-transparency-percent=15
+scrollback-unlimited=true
+custom-command=''
+exit-action='close'
