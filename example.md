@@ -16,6 +16,8 @@
   become: true
 
 
+Whitesur icon theme for mac https://www.gnome-look.org/p/1405756
+
   #Steps for Mac
   sudo apt install plank -y
   https://www.gnome-look.org/p/1403328 theme shall be in /home/gokul/.themes/

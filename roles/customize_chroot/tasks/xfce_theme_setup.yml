@@ -27,35 +27,17 @@
     dest: "{{ chroot_dir }}/usr/share/themes/WhiteSur"
 
 # === ICON THEMES ===
-
-- name: Find all .tar.xz icon theme files
-  find:
-    paths: "{{ playbook_dir }}/cloudify-os-main/icons/"
-    patterns: "*.tar.xz"
-  register: icon_theme_archives
-
-- name: Print found icon theme files
-  debug:
-    msg: "Found icon theme archive: {{ item.path }}"
-  loop: "{{ icon_theme_archives.files }}"
-  when: icon_theme_archives.files | length > 0
-
-- name: Ensure /usr/share/icons exists inside chroot
-  file:
-    path: "{{ chroot_dir }}/usr/share/icons"
+- name: Create destination directory for WhiteSur theme
+  ansible.builtin.file:
+    path: "{{ chroot_dir }}/usr/share/icons/WhiteSur"
     state: directory
     mode: '0755'
+    recurse: yes 
 
-#Look like the files has problems , we shall do it later
-#- name: Extract icon theme archive into separate subfolders
-#  unarchive:
-#    src: "{{ item.path }}"
-#    dest: "{{ chroot_dir }}/usr/share/icons/{{ item.path | basename | regex_replace('\\.tar\\.xz$', '') }}"
-#    remote_src: yes
-#  loop: "{{ icon_theme_archives.files }}"
-#  loop_control:
-#    label: "{{ item.path }}"
-
+- name: Extract theme archive into chroot
+  unarchive:
+    src: "{{ playbook_dir }}/cloudify-os-main/icons/cloudi.tar.gz"
+    dest: "{{ chroot_dir }}/usr/share/icons/WhiteSur"
 
 - name: Create config directory
   ansible.builtin.file:
