@@ -1,5 +1,5 @@
 # live-build temporary and output directories
-config/
+
 local/
 cache/
 chroot/
