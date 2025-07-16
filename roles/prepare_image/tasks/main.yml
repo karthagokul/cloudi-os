@@ -4,7 +4,7 @@
 
 - name: Ensure previous image directory is removed (clean build)
   file:
-    path: "{{ lookup('env','PWD') }}/build/image"
+    path: "{ playbook_dir }/build/image"
     state: absent
 
 - name: Recreate image directory structure (casper, isolinux, install)
@@ -13,9 +13,9 @@
     state: directory
     mode: '0755'
   loop:
-    - "{{ lookup('env','PWD') }}/build/image/casper"
-    - "{{ lookup('env','PWD') }}/build/image/isolinux"
-    - "{{ lookup('env','PWD') }}/build/image/install"
+    - "{ playbook_dir }/build/image/casper"
+    - "{ playbook_dir }/build/image/isolinux"
+    - "{ playbook_dir }/build/image/install"
 
 # -------------------------------------------------------------
 # Step 1: Locate kernel and initrd inside chroot/boot
@@ -28,7 +28,7 @@
     file_type: file
   register: kernel_files
   vars:
-    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
+    chroot_path: "{ playbook_dir }/build/chroot"
 
 - name: Find initrd.img-* initramfs image in chroot/boot
   find:
@@ -37,7 +37,7 @@
     file_type: file
   register: initrd_files
   vars:
-    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
+    chroot_path: "{ playbook_dir }/build/chroot"
 
 # -------------------------------------------------------------
 # Step 2: Copy kernel and initrd files into image/casper/
@@ -52,7 +52,7 @@
     - { src: "{{ kernel_files.files[0].path }}", dest: "{{ image_path }}/casper/vmlinuz" }
     - { src: "{{ initrd_files.files[0].path }}", dest: "{{ image_path }}/casper/initrd" }
   vars:
-    image_path: "{{ lookup('env','PWD') }}/build/image"
+    image_path: "{ playbook_dir }/build/image"
 
 # -------------------------------------------------------------
 # Step 3: Create a compressed squashfs image of the chroot
@@ -66,5 +66,5 @@
   args:
     creates: "{{ image_path }}/casper/filesystem.squashfs"
   vars:
-    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
-    image_path: "{{ lookup('env','PWD') }}/build/image"
+    chroot_path: "{ playbook_dir }/build/chroot"
+    image_path: "{ playbook_dir }/build/image"

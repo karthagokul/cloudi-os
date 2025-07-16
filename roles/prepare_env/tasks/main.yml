@@ -19,15 +19,28 @@
     state: directory
     mode: '0755'
   loop:
-    - "{{ lookup('env','PWD') }}/build"
-    - "{{ lookup('env','PWD') }}/build/chroot"
-    - "{{ lookup('env','PWD') }}/build/image"
+    - "{ playbook_dir }/build"
+    - "{ playbook_dir }/build/chroot"
+    - "{ playbook_dir }/build/image"
 
 - name: Bootstrap base system
   command: >
     debootstrap --arch={{ ARCH }}
     {{ DISTRIBUTION }}
-    {{ lookup('env','PWD') }}/build/chroot
+    { playbook_dir }/build/chroot
     {{ UBUNTU_MIRROR }}
   args:
-    creates: "{{ lookup('env','PWD') }}/build/chroot/bin/bash"
+    creates: "{ playbook_dir }/build/chroot/bin/bash"
+
+- name: Stat all build directories
+  stat:
+    path: "{{ item }}"
+  loop:
+    - "{{ playbook_dir }}/build"
+    - "{{ playbook_dir }}/build/chroot"
+    - "{{ playbook_dir }}/build/image"
+  register: build_dirs_stat
+
+- name: Print stat result
+  debug:
+    var: build_dirs_stat
