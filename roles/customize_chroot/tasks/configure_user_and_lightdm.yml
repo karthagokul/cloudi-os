@@ -1,9 +1,9 @@
 - name: Create user 'ubuntu' if it doesn't exist (inside chroot)
-  command: chroot {{ chroot_dir }} bash -c "id ubuntu || (useradd -m -s /bin/bash ubuntu && echo 'ubuntu:ubuntu' | chpasswd)"
+  command: chroot {{ CHROOT_DIR }} bash -c "id ubuntu || (useradd -m -s /bin/bash ubuntu && echo 'ubuntu:ubuntu' | chpasswd)"
   become: true
 
 - name: Add 'ubuntu' user to groups (sudo, adm, netdev, audio, video)
-  command: chroot {{ chroot_dir }} adduser ubuntu {{ item }}
+  command: chroot {{ CHROOT_DIR }} adduser ubuntu {{ item }}
   loop:
     - sudo
     - adm
@@ -14,7 +14,7 @@
 
 - name: Create /run/user/1000 and set permissions
   file:
-    path: "{{ chroot_dir }}/run/user/1000"
+    path: "{{ CHROOT_DIR }}/run/user/1000"
     state: directory
     owner: 1000
     group: 1000
@@ -22,7 +22,7 @@
 
 - name: Append XDG_RUNTIME_DIR to .profile of ubuntu user
   lineinfile:
-    path: "{{ chroot_dir }}/home/ubuntu/.profile"
+    path: "{{ CHROOT_DIR }}/home/ubuntu/.profile"
     line: "export XDG_RUNTIME_DIR=/run/user/1000"
     create: yes
     owner: 1000
@@ -31,18 +31,18 @@
 
 - name: Ensure LightDM autologin config dir exists
   file:
-    path: "{{ chroot_dir }}/etc/lightdm/lightdm.conf.d"
+    path: "{{ CHROOT_DIR }}/etc/lightdm/lightdm.conf.d"
     state: directory
     mode: '0755'
 
 - name: Set default display manager to LightDM
   copy:
     content: "/usr/sbin/lightdm\n"
-    dest: "{{ chroot_dir }}/etc/X11/default-display-manager"
+    dest: "{{ CHROOT_DIR }}/etc/X11/default-display-manager"
 
 - name: Configure LightDM autologin (basic)
   copy:
-    dest: "{{ chroot_dir }}/etc/lightdm/lightdm.conf.d/50-autologin.conf"
+    dest: "{{ CHROOT_DIR }}/etc/lightdm/lightdm.conf.d/50-autologin.conf"
     content: |
       [Seat:*]
       autologin-user=ubuntu
@@ -50,7 +50,7 @@
 
 - name: Configure LightDM autologin (cloudify custom)
   copy:
-    dest: "{{ chroot_dir }}/etc/lightdm/lightdm.conf.d/50-cloudify-autologin.conf"
+    dest: "{{ CHROOT_DIR }}/etc/lightdm/lightdm.conf.d/50-cloudify-autologin.conf"
     content: |
       [Seat:*]
       autologin-user=ubuntu
@@ -58,7 +58,7 @@
 
 - name: Configure NetworkManager to manage interfaces
   copy:
-    dest: "{{ chroot_dir }}/etc/NetworkManager/NetworkManager.conf"
+    dest: "{{ CHROOT_DIR }}/etc/NetworkManager/NetworkManager.conf"
     content: |
       [main]
       plugins=ifupdown,keyfile

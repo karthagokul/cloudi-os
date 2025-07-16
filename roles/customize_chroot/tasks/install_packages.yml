@@ -1,10 +1,10 @@
 - name: Ensure locales package is installed inside chroot
-  command: chroot {{ chroot_dir }} apt-get install -y locales
+  command: chroot {{ CHROOT_DIR }} apt-get install -y locales
   become: true
 
 - name: Preseed keyboard configuration inside chroot
   command: >
-    chroot {{ chroot_dir }} bash -c "
+    chroot {{ CHROOT_DIR }} bash -c "
     echo 'keyboard-configuration  keyboard-configuration/layoutcode select us' | debconf-set-selections &&
     echo 'keyboard-configuration  keyboard-configuration/modelcode select pc105' | debconf-set-selections &&
     echo 'keyboard-configuration  keyboard-configuration/xkb-keymap select us' | debconf-set-selections &&
@@ -14,37 +14,37 @@
 
 - name: Preseed locale settings inside chroot
   command: >
-    chroot {{ chroot_dir }} bash -c "
+    chroot {{ CHROOT_DIR }} bash -c "
     echo 'locales locales/default_environment_locale select en_US.UTF-8' | debconf-set-selections &&
     echo 'locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8' | debconf-set-selections
     "
   become: true
 
 - name: Generate locale inside chroot
-  command: chroot {{ chroot_dir }} locale-gen en_US.UTF-8
+  command: chroot {{ CHROOT_DIR }} locale-gen en_US.UTF-8
   become: true
 
 - name: Update locale inside chroot
-  command: chroot {{ chroot_dir }} update-locale LANG=en_US.UTF-8
+  command: chroot {{ CHROOT_DIR }} update-locale LANG=en_US.UTF-8
   become: true
 
 - name: Update apt cache inside chroot
-  command: chroot {{ chroot_dir }} apt-get update
+  command: chroot {{ CHROOT_DIR }} apt-get update
   become: true
 
 - name: Preseed lightdm as default display manager
   command: >
-    chroot {{ chroot_dir }} bash -c "
+    chroot {{ CHROOT_DIR }} bash -c "
     echo 'lightdm shared/default-x-display-manager select lightdm' | debconf-set-selections
     "
   become: true
 
 - name: Install XFCE and system packages inside chroot
   command: >
-    chroot {{ chroot_dir }} apt-get install -y sudo casper initramfs-tools udev xubuntu-desktop plank
+    chroot {{ CHROOT_DIR }} apt-get install -y sudo casper initramfs-tools udev xubuntu-desktop plank
   become: true
   
 
 - name: Install kernel and headers inside chroot (no recommends)
-  command: chroot {{ chroot_dir }} apt-get install -y --no-install-recommends linux-generic linux-headers-generic
+  command: chroot {{ CHROOT_DIR }} apt-get install -y --no-install-recommends linux-generic linux-headers-generic
   become: true

@@ -1,9 +1,16 @@
 # --- Setup basic paths used throughout the build ---
 - name: Set image and ISO paths as facts
   set_fact:
-    image_path: "{{ lookup('env','PWD') }}/build/image"
-    chroot_path: "{{ lookup('env','PWD') }}/build/chroot"
-    iso_output: "{{ lookup('env','PWD') }}/build/{{ ISO_NAME | default('cloudify.iso') }}"
+    image_path: "{{ IMAGE_DIR }}"
+    chroot_path: "{{ CHROOT_DIR }}"
+    iso_output: "{{ BUILD_DIR }}/{{ ISO_NAME | default('cloudify.iso') }}"
+
+- name: Print resolved paths
+  debug:
+    msg:
+      - "Image Path: {{ image_path }}"
+      - "Chroot Path: {{ chroot_path }}"
+      - "ISO Output: {{ iso_output }}"
 
 # --- Clean up previous squashfs if it exists to ensure fresh rebuild ---
 - name: Remove existing filesystem.squashfs to force rebuild
@@ -15,12 +22,22 @@
 # Step 1: Create compressed root filesystem
 # -------------------------------------------
 
-- name: Create SquashFS from chroot directory (excluding /boot)
+- name: Create SquashFS from chroot with compression
   command: >
     mksquashfs {{ chroot_path }} {{ image_path }}/casper/filesystem.squashfs
     -noappend -wildcards -comp xz -e boot
+  when: not SKIP_COMPRESSION | bool
   args:
     creates: "{{ image_path }}/casper/filesystem.squashfs"
+
+- name: Create uncompressed SquashFS from chroot (debug mode)
+  command: >
+    mksquashfs {{ chroot_path }} {{ image_path }}/casper/filesystem.squashfs
+    -noappend -wildcards -noI -noD -noF -e boot
+  when: SKIP_COMPRESSION | bool
+  args:
+    creates: "{{ image_path }}/casper/filesystem.squashfs"
+
 
 - name: Calculate chroot filesystem size in bytes
   shell: du -sx --block-size=1 "{{ chroot_path }}" | cut -f1
@@ -106,6 +123,11 @@
 # ---------------------------------------------------------
 # Step 5: Generate final ISO image (BIOS + UEFI bootable)
 # ---------------------------------------------------------
+- name: Print ISO build paths for debug
+  debug:
+    msg:
+      - "ISO output path: {{ iso_output }}"
+      - "ISO image source path: {{ image_path }}"
 
 - name: Generate hybrid ISO with xorriso (supports BIOS + UEFI)
   command: >

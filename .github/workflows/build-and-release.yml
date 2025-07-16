@@ -22,17 +22,15 @@ jobs:
     - name: Build ISO inside Docker
       run: |
         docker build -t cloudify-builder .
-        docker run --rm --privileged -v ${{ github.workspace }}:/workspace cloudify-builder ansible-playbook /workspace/playbook.yml && ls /workspace/build/
-
-
+        docker run --privileged --rm -v "$(pwd):/workspace" cloudify-builder ansible-playbook playbook.yml
     - name: List ISO Output
-      run: "ls -lh ${{ github.workspace }}/build/"
+      run: "ls -lh $(pwd)/build/"
 
     - name: Upload ISO to GitHub Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
       with:
         name: "Cloudify OS ${{ github.ref_name }}"
-        files: "${{ github.workspace }}/build/*.iso"
+        files: "$(pwd)/build/*.iso"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
