@@ -1,30 +1,73 @@
-[/com/gexperts/Tilix]
-default-session='default'
-quake-terminal-enabled=true
-theme-variant='dark'
-use-tabs=true
-tab-position='top'
+[/]
+warn-vte-config-issue=false
+prompt-on-close=true
+prompt-on-delete-profile=true
 
-[/com/gexperts/Tilix/keybindings]
-session-add-down='<Shift><Ctrl>J'
-session-add-right='<Shift><Ctrl>L'
-session-close='<Shift><Ctrl>W'
-session-split-down='<Alt><Shift>J'
-session-split-right='<Alt><Shift>L'
-
-[/com/gexperts/Tilix/profiles]
-default='4f4f4f4f-4f4f-4f4f-4f4f-4f4f4f4f4f4f'
-
-[/com/gexperts/Tilix/profiles/4f4f4f4f-4f4f-4f4f-4f4f-4f4f4f4f4f4f]
-visible-name='Cloudify Dark'
-use-system-font=false
-font='Fira Code 11'
-use-theme-colors=false
-background-color='#1E1E2E'
-foreground-color='#D0D0D0'
-palette=['#1E1E2E', '#F38BA8', '#A6E3A1', '#F9E2AF', '#89B4FA', '#F5C2E7', '#94E2D5', '#BAC2DE', '#585B70', '#F38BA8', '#A6E3A1', '#F9E2AF', '#89B4FA', '#F5C2E7', '#94E2D5', '#A6ADC8']
-use-transparent-background=true
-background-transparency-percent=15
-scrollback-unlimited=true
+[profiles/66264601-9fd3-4d3c-9f31-d979c5a71a8d]
+cursor-shape='ibeam'
+cursor-colors-set=false
+bold-color-set=false
+terminal-bell='sound'
+scroll-on-keystroke=true
+cjk-utf8-ambiguous-width='narrow'
+default-size-rows=24
+encoding='UTF-8'
+triggers=@as []
+automatic-switch=@as []
 custom-command=''
+visible-name='Mon mien'
+text-blink-mode='always'
+terminal-title='${id}: ${title}'
+use-theme-colors=false
+cell-height-scale=1.0
+badge-text=''
 exit-action='close'
+use-system-font=true
+backspace-binding='ascii-delete'
+rewrap-on-resize=true
+foreground-color='#A1B0B8'
+login-shell=true
+background-transparency-percent=6
+cursor-blink-mode='system'
+dim-transparency-percent=0
+bold-is-bright=true
+cell-width-scale=1.0
+default-size-columns=80
+background-color='#263238'
+cursor-foreground-color='#ffffff'
+allow-bold=true
+palette=['#000000000000', '#FF5252', '#C3D82C', '#FFC135', '#42A5F5', '#D81B60', '#00ACC1', '#F5F5F5', '#EEEEEEEEECEC', '#FF5252', '#C3D82C', '#FFC135', '#42A5F5', '#D81B60', '#00ACC1', '#F5F5F5']
+notify-silence-threshold=0
+badge-color='#ffffff'
+highlight-foreground-color='#ffffff'
+font='Monospace 12'
+delete-binding='delete-sequence'
+badge-position='northeast'
+custom-hyperlinks=@as []
+scrollback-unlimited=false
+cursor-background-color='#000000'
+highlight-background-color='#000000'
+scroll-on-output=false
+select-by-word-chars='-,./?%&#:_'
+use-custom-command=false
+badge-color-set=false
+bold-color='#ffffff'
+highlight-colors-set=false
+scrollback-lines=8192
+show-scrollbar=true
+
+[profiles]
+list=['2b7c4080-0ddd-46c5-8f23-563fd3ba789d', '66264601-9fd3-4d3c-9f31-d979c5a71a8d']
+default='66264601-9fd3-4d3c-9f31-d979c5a71a8d'
+
+[profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d]
+foreground-color='#A1B0B8'
+visible-name='Par défaut'
+login-shell=true
+palette=['#252525', '#FF5252', '#C3D82C', '#FFC135', '#42A5F5', '#D81B60', '#00ACC1', '#F5F5F5', '#708284', '#FF5252', '#C3D82C', '#FFC135', '#42A5F5', '#D81B60', '#00ACC1', '#F5F5F5']
+badge-color-set=false
+cursor-colors-set=false
+highlight-colors-set=false
+use-theme-colors=false
+bold-color-set=false
+background-color='#263238'
