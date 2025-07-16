@@ -21,8 +21,8 @@ jobs:
 
     - name: Build ISO inside Docker
       run: |
-        sh builder.sh prepare
-        sh builder.sh build
+        docker build -t cloudify-builder .
+        docker run --privileged --rm -v "$(pwd):/workspace" cloudify-builder ansible-playbook playbook.yml
     - name: List ISO Output
       run: "ls -lh $(pwd)/build/"
 
