@@ -35,11 +35,7 @@ Cloudi OS is based on debian , i use ansible to generate the OS , is in very ear
 You could — but the goal here is to create a focused experience where everything feels ready out of the box, curated for how PMs actually think and work.
 
 ### What’s Next?
-
 - Beta ISO coming in August  
-- Looking for early testers, designers, and feedback  
-- Want to join the mission? DM me or comment below
-
 ### Conclusion
 
 Developers have their Arch. Creatives have their macOS.  
