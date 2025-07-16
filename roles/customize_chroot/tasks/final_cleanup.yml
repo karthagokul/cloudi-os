@@ -1,11 +1,11 @@
 - name: Remove default XFCE panels
   file:
-    path: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/panel"
+    path: "{{ CHROOT_DIR }}/home/ubuntu/.config/xfce4/panel"
     state: absent
 
 - name: Ensure autostart folder exists
   file:
-    path: "{{ chroot_dir }}/home/ubuntu/.config/autostart"
+    path: "{{ CHROOT_DIR }}/home/ubuntu/.config/autostart"
     state: directory
     owner: ubuntu
     group: ubuntu
@@ -13,7 +13,7 @@
 
 - name: Ensure Plank is the only autostart entry
   copy:
-    dest: "{{ chroot_dir }}/home/ubuntu/.config/autostart/plank.desktop"
+    dest: "{{ CHROOT_DIR }}/home/ubuntu/.config/autostart/plank.desktop"
     content: |
       [Desktop Entry]
       Type=Application
@@ -26,18 +26,18 @@
     mode: "0644"
 
 - name: Regenerate locale
-  command: chroot {{ chroot_dir }} locale-gen
+  command: chroot {{ CHROOT_DIR }} locale-gen
 
 - name: Set default locale to en_US.UTF-8
-  command: chroot {{ chroot_dir }} update-locale LANG=en_US.UTF-8
+  command: chroot {{ CHROOT_DIR }} update-locale LANG=en_US.UTF-8
 
 - name: Autoremove unneeded packages
-  command: chroot {{ chroot_dir }} apt-get autoremove -y
+  command: chroot {{ CHROOT_DIR }} apt-get autoremove -y
 
 - name: Clean APT cache
-  command: chroot {{ chroot_dir }} apt-get clean
+  command: chroot {{ CHROOT_DIR }} apt-get clean
 
 - name: Remove temporary files
   file:
-    path: "{{ chroot_dir }}/tmp"
+    path: "{{ CHROOT_DIR }}/tmp"
     state: absent

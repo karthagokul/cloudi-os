@@ -33,28 +33,18 @@
 
 - name: Run base system setup
   include_tasks: prepare_base.yml
-  vars:
-    CHROOT_DIR: "{{ lookup('env', 'PWD') }}/build/chroot"
 
 - name: Install locale, keyboard, and essential packages
   include_tasks: install_packages.yml
-  vars:
-    CHROOT_DIR: "{{ lookup('env', 'PWD') }}/build/chroot"
 
 - name: Configure User & LightDM
   include_tasks: configure_user_and_lightdm.yml
-  vars:
-    CHROOT_DIR: "{{ lookup('env', 'PWD') }}/build/chroot"
 
 - name: Optimize system and configure services
   include_tasks: optimize_and_services.yml
-  vars:
-    CHROOT_DIR: "{{ lookup('env', 'PWD') }}/build/chroot"
 
 - name: Apply XFCE WhiteSur theme and session settings
   include_tasks: xfce_theme_setup.yml
-  vars:
-    CHROOT_DIR: "{{ lookup('env', 'PWD') }}/build/chroot"
 
 #- name: Perform final XFCE cleanup and system tuning
 #  include_tasks: final_cleanup.yml
