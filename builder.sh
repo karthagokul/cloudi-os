@@ -27,7 +27,7 @@ function build_image() {
 
 function run_ansible() {
     echo " Running Ansible playbook (SKIP_COMPRESSION=$SKIP_COMPRESSION)..."
-    docker run -it --privileged --rm -v "./:/workspace" -v /dev:/dev cloudi-os-builder \
+    docker run -it --privileged --rm -v "$(pwd):/workspace" -v /dev:/dev cloudi-os-builder \
         ansible-playbook playbook.yml -e "SKIP_COMPRESSION=$SKIP_COMPRESSION"
 }
 
