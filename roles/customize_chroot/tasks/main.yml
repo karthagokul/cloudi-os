@@ -21,45 +21,45 @@
       PWD is: {{ lookup('env', 'PWD') }},
       CHROOT_Script  is : {{ lookup('env', 'PWD') }}/cloudify-os-main/chroot_scripts/,
 
-- name: Debug - Verify chroot_dir existence and permissions
+- name: Debug - Verify CHROOT_DIR existence and permissions
   ansible.builtin.stat:
     path: "{{ CHROOT_DIR }}"
-  register: chroot_dir_stat
+  register: CHROOT_DIR_stat
   become: true
 
-- name: Debug - Show chroot_dir details
+- name: Debug - Show CHROOT_DIR details
   debug:
-    msg: "Chroot directory: {{ chroot_dir_stat }}"
+    msg: "Chroot directory: {{ CHROOT_DIR_stat }}"
 
 - name: Run base system setup
   include_tasks: prepare_base.yml
   vars:
-    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
+    CHROOT_DIR: "{{ lookup('env', 'PWD') }}/build/chroot"
 
 - name: Install locale, keyboard, and essential packages
   include_tasks: install_packages.yml
   vars:
-    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
+    CHROOT_DIR: "{{ lookup('env', 'PWD') }}/build/chroot"
 
 - name: Configure User & LightDM
   include_tasks: configure_user_and_lightdm.yml
   vars:
-    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
+    CHROOT_DIR: "{{ lookup('env', 'PWD') }}/build/chroot"
 
 - name: Optimize system and configure services
   include_tasks: optimize_and_services.yml
   vars:
-    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
+    CHROOT_DIR: "{{ lookup('env', 'PWD') }}/build/chroot"
 
 - name: Apply XFCE WhiteSur theme and session settings
   include_tasks: xfce_theme_setup.yml
   vars:
-    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
+    CHROOT_DIR: "{{ lookup('env', 'PWD') }}/build/chroot"
 
 #- name: Perform final XFCE cleanup and system tuning
 #  include_tasks: final_cleanup.yml
 #  vars:
-#    chroot_dir: "{{ lookup('env', 'PWD') }}/build/chroot"
+#    CHROOT_DIR: "{{ lookup('env', 'PWD') }}/build/chroot"
 
 
 - name: Unmount virtual filesystems from chroot

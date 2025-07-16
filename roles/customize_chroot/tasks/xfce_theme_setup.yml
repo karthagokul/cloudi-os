@@ -37,11 +37,11 @@
 - name: Extract theme archive into chroot
   unarchive:
     src: "{{ BUILD_BASE_PATH }}/cloudify-os-main/icons/cloudi.tar.gz"
-    dest: "{{ chroot_dir }}/usr/share/icons/"
+    dest: "{{ CHROOT_DIR }}/usr/share/icons/"
 
 - name: Create config directory
   ansible.builtin.file:
-    path: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/"
+    path: "{{ CHROOT_DIR }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/"
     state: directory
     mode: '0755'
     recurse: yes 
@@ -50,14 +50,14 @@
 - name: Copy xsettings as default
   copy:
     src: "{{ BUILD_BASE_PATH }}/cloudify-os-main/config/xsettings.xml"
-    dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml"
+    dest: "{{ CHROOT_DIR }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml"
     force: true 
   become: true
 
 - name: Copy desktop settings as default
   copy:
     src: "{{ BUILD_BASE_PATH }}/cloudify-os-main/config/xfce4-desktop.xml"
-    dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml"
+    dest: "{{ CHROOT_DIR }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml"
     force: true 
   become: true
 
@@ -130,4 +130,4 @@
 # Bug we need a better mechanism to do this at startup.
 #- name: Load Tilix config via dconf inside chroot
 #  command: >
-#    chroot {{ chroot_dir }} bash -c 'dconf load /com/gexperts/Tilix/ < /tmp/tilix.dconf'
+#    chroot {{ CHROOT_DIR }} bash -c 'dconf load /com/gexperts/Tilix/ < /tmp/tilix.dconf'

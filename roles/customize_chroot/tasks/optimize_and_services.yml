@@ -1,6 +1,6 @@
 - name: Optimize initramfs settings for faster boot (MODULES=most, COMPRESS=zstd)
   lineinfile:
-    path: "{{ chroot_dir }}/etc/initramfs-tools/initramfs.conf"
+    path: "{{ CHROOT_DIR }}/etc/initramfs-tools/initramfs.conf"
     regexp: "^{{ item.key }}="
     line: "{{ item.key }}={{ item.value }}"
     create: yes
@@ -9,11 +9,11 @@
     - { key: 'COMPRESS', value: 'zstd' }
 
 - name: Update initramfs inside chroot
-  command: chroot {{ chroot_dir }} update-initramfs -u
+  command: chroot {{ CHROOT_DIR }} update-initramfs -u
   become: true
 
 - name: Disable unneeded services inside chroot
-  command: chroot {{ chroot_dir }} systemctl disable {{ item }}
+  command: chroot {{ CHROOT_DIR }} systemctl disable {{ item }}
   loop:
     - bluetooth
     - avahi-daemon
@@ -24,7 +24,7 @@
   become: true
 
 - name: Mask sleep-related targets
-  command: chroot {{ chroot_dir }} systemctl mask {{ item }}
+  command: chroot {{ CHROOT_DIR }} systemctl mask {{ item }}
   loop:
     - sleep.target
     - suspend.target
@@ -34,12 +34,12 @@
   become: true
 
 - name: Enable LightDM and NetworkManager
-  command: chroot {{ chroot_dir }} systemctl enable {{ item }}
+  command: chroot {{ CHROOT_DIR }} systemctl enable {{ item }}
   loop:
     - lightdm
     - NetworkManager
   become: true
 
 - name: Set graphical target as default (GUI login)
-  command: chroot {{ chroot_dir }} systemctl set-default graphical.target
+  command: chroot {{ CHROOT_DIR }} systemctl set-default graphical.target
   become: true
