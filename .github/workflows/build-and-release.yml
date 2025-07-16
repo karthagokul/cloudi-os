@@ -31,6 +31,6 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         name: "Cloudify OS ${{ github.ref_name }}"
-        files: "$(pwd)/build/*.iso"
+        files: "${{ github.workspace }}/build/*.iso"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
