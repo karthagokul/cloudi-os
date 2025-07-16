@@ -1,9 +1,9 @@
 # --- Setup basic paths used throughout the build ---
 - name: Set image and ISO paths as facts
   set_fact:
-    image_path: "{{ playbook_dir }}/build/image"
-    chroot_path: "{{ playbook_dir }}/build/chroot"
-    iso_output: "{{ playbook_dir }}/build/{{ ISO_NAME | default('cloudify.iso') }}"
+    image_path: "{{ IMAGE_DIR }}"
+    chroot_path: "{{ CHROOT_DIR }}"
+    iso_output: "{{ BUILD_DIR }}/{{ ISO_NAME | default('cloudify.iso') }}"
 
 - name: Print resolved paths
   debug:

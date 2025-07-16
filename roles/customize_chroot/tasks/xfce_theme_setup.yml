@@ -1,42 +1,42 @@
 
 - name: Fix ownership of ubuntu user config files
   file:
-    path: "{{ chroot_dir }}/home/ubuntu/.config"
+    path: "{{ CHROOT_DIR }}/home/ubuntu/.config"
     owner: 1000
     group: 1000
     recurse: yes
 
 - name: Copy default wallpaper into chroot for user-level usage
   copy:
-    src: "{{ playbook_dir }}/cloudify-os-main/cloudify-wallpaper.png"
-    dest: "{{ chroot_dir }}/usr/share/backgrounds/xfce/cloudify-wallpaper.png"
+    src: "{{ BUILD_BASE_PATH }}/cloudify-os-main/cloudify-wallpaper.png"
+    dest: "{{ CHROOT_DIR }}/usr/share/backgrounds/xfce/cloudify-wallpaper.png"
   become: true
 
 # ==== Theme =====
 
 - name: Create destination directory for WhiteSur theme
   ansible.builtin.file:
-    path: "{{ chroot_dir }}/usr/share/themes/WhiteSur"
+    path: "{{ CHROOT_DIR }}/usr/share/themes/WhiteSur"
     state: directory
     mode: '0755'
     recurse: yes 
 
 - name: Extract theme archive into chroot
   unarchive:
-    src: "{{ playbook_dir }}/cloudify-os-main/themes/cloudi.tar.gz"
-    dest: "{{ chroot_dir }}/usr/share/themes/WhiteSur"
+    src: "{{ BUILD_BASE_PATH }}/cloudify-os-main/themes/cloudi.tar.gz"
+    dest: "{{ CHROOT_DIR }}/usr/share/themes/WhiteSur"
 
 # === ICON THEMES ===
 - name: Create destination directory for WhiteSur theme
   ansible.builtin.file:
-    path: "{{ chroot_dir }}/usr/share/icons/WhiteSur"
+    path: "{{ CHROOT_DIR }}/usr/share/icons/WhiteSur"
     state: directory
     mode: '0755'
     recurse: yes 
 
 - name: Extract theme archive into chroot
   unarchive:
-    src: "{{ playbook_dir }}/cloudify-os-main/icons/cloudi.tar.gz"
+    src: "{{ BUILD_BASE_PATH }}/cloudify-os-main/icons/cloudi.tar.gz"
     dest: "{{ chroot_dir }}/usr/share/icons/"
 
 - name: Create config directory
@@ -49,14 +49,14 @@
 ## Desktop Settings ####
 - name: Copy xsettings as default
   copy:
-    src: "{{ playbook_dir }}/cloudify-os-main/config/xsettings.xml"
+    src: "{{ BUILD_BASE_PATH }}/cloudify-os-main/config/xsettings.xml"
     dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml"
     force: true 
   become: true
 
 - name: Copy desktop settings as default
   copy:
-    src: "{{ playbook_dir }}/cloudify-os-main/config/xfce4-desktop.xml"
+    src: "{{ BUILD_BASE_PATH }}/cloudify-os-main/config/xfce4-desktop.xml"
     dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml"
     force: true 
   become: true
@@ -64,12 +64,12 @@
 ## CONKY
 - name: Install conky in chroot
   command: >
-    chroot {{ chroot_dir }} apt-get install -y conky-all
+    chroot {{ CHROOT_DIR }} apt-get install -y conky-all
   become: true
 
 - name: Create Conky config directory for user
   file:
-    path: "{{ chroot_dir }}/home/ubuntu/.config/conky"
+    path: "{{ CHROOT_DIR }}/home/ubuntu/.config/conky"
     state: directory
     owner: 1000
     group: 1000
@@ -77,15 +77,15 @@
 
 - name: Copy custom Conky config
   copy:
-    src: "{{ playbook_dir }}/cloudify-os-main/config/conky.conf"
-    dest: "{{ chroot_dir }}/home/ubuntu/.config/conky/conky.conf"
+    src: "{{ BUILD_BASE_PATH }}/cloudify-os-main/config/conky.conf"
+    dest: "{{ CHROOT_DIR }}/home/ubuntu/.config/conky/conky.conf"
     owner: 1000
     group: 1000
     mode: '0644'
 
 - name: Create XFCE autostart directory
   file:
-    path: "{{ chroot_dir }}/home/ubuntu/.config/autostart"
+    path: "{{ CHROOT_DIR }}/home/ubuntu/.config/autostart"
     state: directory
     owner: 1000
     group: 1000
@@ -102,7 +102,7 @@
       X-GNOME-Autostart-enabled=true
       Name=Conky
       Comment=Start Conky system monitor
-    dest: "{{ chroot_dir }}/home/ubuntu/.config/autostart/conky.desktop"
+    dest: "{{ CHROOT_DIR }}/home/ubuntu/.config/autostart/conky.desktop"
     owner: 1000
     group: 1000
     mode: '0644'
@@ -110,12 +110,12 @@
 #Tilix
 - name: Install Tilix terminal emulator in chroot
   command: >
-    chroot {{ chroot_dir }} apt-get install -y tilix fonts-firacode
+    chroot {{ CHROOT_DIR }} apt-get install -y tilix fonts-firacode
   become: true
 
 - name: Set Tilix as the default terminal emulator
   copy:
-    dest: "{{ chroot_dir }}/home/ubuntu/.config/xfce4/helpers.rc"
+    dest: "{{ CHROOT_DIR }}/home/ubuntu/.config/xfce4/helpers.rc"
     content: |
       TerminalEmulator=tilix
     owner: 1000
@@ -124,8 +124,8 @@
 
 - name: Copy Tilix dconf config
   copy:
-    src: "{{ playbook_dir }}/cloudify-os-main/config/tilix.dconf"
-    dest: "{{ chroot_dir }}/tmp/tilix.dconf"
+    src: "{{ BUILD_BASE_PATH }}/cloudify-os-main/config/tilix.dconf"
+    dest: "{{ CHROOT_DIR }}/tmp/tilix.dconf"
 
 # Bug we need a better mechanism to do this at startup.
 #- name: Load Tilix config via dconf inside chroot

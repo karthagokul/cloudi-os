@@ -12,7 +12,7 @@
     - { mount: "dev",  src: "/dev" }
     - { mount: "run",  src: "/run" }
   vars:
-    chroot_path: "{ playbook_dir }/build/chroot"
+    chroot_path: "{{ BUILD_DIR }}/chroot"
 
 - name: Show CHROOT_DIR and current working directory
   debug:
@@ -71,4 +71,4 @@
     - run
   ignore_errors: true
   vars:
-    chroot_path: "{ playbook_dir }/build/chroot"
+    chroot_path: "{{ BUILD_DIR }}/chroot"
