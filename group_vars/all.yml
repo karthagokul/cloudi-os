@@ -14,5 +14,5 @@ ARCH: amd64
 UBUNTU_MIRROR: http://us.archive.ubuntu.com/ubuntu/
 ISO_NAME: cloudify-os-{{ DISTRIBUTION }}-{{ ARCH }}.iso
 SHOW_CONSOLE_LOGS: true
-CHROOT_DIR: "{{ lookup('env','PWD') }}/build/chroot"
+CHROOT_DIR: "{ BUILD_BASE_PATH }/build/chroot"
 SKIP_COMPRESSION: false
