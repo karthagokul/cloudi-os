@@ -16,7 +16,7 @@ else
 fi
 
 if [ -z "$ACTION" ]; then
-    echo "Usage: $0 [build|run|deploy|all|debug] [dev|release]"
+    echo "Usage: $0 [prepare|build|deploy|all|debug] [dev|release]"
     exit 1
 fi
 
