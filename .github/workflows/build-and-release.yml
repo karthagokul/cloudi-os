@@ -1,10 +1,13 @@
 name: Build and Release Cloudify OS
 
 on:
-  workflow_dispatch:         # Manual trigger from GitHub UI
-  push:
+  push:                      # Triggers on all pushes (tags + branches)
+    branches:
+      - '**'                 # All branches
     tags:
-      - 'v*'                 # Auto-trigger when you push tags like v1.0.0
+      - '**'                 # All tags
+  workflow_dispatch:         # Manual trigger from GitHub UI
+
 
 jobs:
   build:
