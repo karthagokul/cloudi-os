@@ -16,7 +16,7 @@ else
 fi
 
 if [ -z "$ACTION" ]; then
-    echo "Usage: $0 [build|run|deploy|all|debug] [dev|release]"
+    echo "Usage: $0 [build|prepare|deploy|all|debug] [dev|release]"
     exit 1
 fi
 
@@ -66,7 +66,7 @@ case "$ACTION" in
         ;;
     *)
         echo " Invalid action: $ACTION"
-        echo "Usage: $0 [build|run|deploy|all|debug] [dev|release]"
+        echo "Usage: $0 [build|prepare|deploy|all|debug] [dev|release]"
         exit 1
         ;;
 esac

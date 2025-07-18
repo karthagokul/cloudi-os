@@ -41,7 +41,10 @@
 
 - name: Install XFCE and system packages inside chroot
   command: >
-    chroot {{ CHROOT_DIR }} apt-get install -y sudo casper initramfs-tools udev xubuntu-desktop plank
+    chroot {{ CHROOT_DIR }} apt-get install -y sudo casper initramfs-tools udev xubuntu-desktop plank \
+    plymouth-themes nextcloud-desktop thunderbird libreoffice zim clamav-daemon remind \
+    docker.io docker-compose python3-pip python3-venv openjdk-8-jdk openjdk-8-jre planner \
+    copyq caffeine freeplane
   become: true
   
 

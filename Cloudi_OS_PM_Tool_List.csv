@@ -1,0 +1,44 @@
+Tool,Purpose,Integration/Packaging Idea,How to Install/Configure
+Obsidian,Note-taking & PKM,AppImage + preloaded PM templates,"Download AppImage from obsidian.md, create .desktop entry, add default vault with PM templates"
+Planner,Simple task & Kanban board,Lightweight alternative to Trello,Install via apt: `sudo apt install planner`
+Trello (Web App),Task and board management,PWA + desktop shortcut,"Open in browser, install as PWA, pin to dock"
+Nextcloud,File sync + calendar/tasks,Local + remote collaboration,"Install desktop client via apt or Flatpak, connect to server, enable calendar integration"
+Thunderbird + Lightning,Email + calendar,With Exchange support for Outlook users,Install via apt: `sudo apt install thunderbird`
+OnlyOffice / LibreOffice,"Docs, spreadsheets, presentations",Preinstalled with PM templates,"Install via snap or apt, add templates to default dirs"
+Etar Calendar,Lightweight calendar with sync,Integrated with Nextcloud,"Install via Flatpak, sync with CalDAV from Nextcloud"
+Remind / Gnome Calendar,Reminder scheduling,With custom CLI integration,Install via apt: `sudo apt install remind gnome-calendar`
+Zulip / Mattermost,Async messaging,Lightweight Slack alternatives,"Use Flatpak or web client, optional Docker for self-hosting"
+Jitsi Meet / Element,Video conferencing,Pre-configured with privacy focus,Use browser PWAs or install desktop versions from Flatpak
+Toggl Track / Super Productivity,Time tracking,Native desktop client or web shortcut,Download AppImage or use browser version
+OpenProject,Self-hosted Agile & Gantt,Local Docker setup optional,"Use Docker image or Debian package, configure on localhost"
+Taiga,Agile project board (Scrum/Kanban),Lightweight install option,Docker install with PostgreSQL backend
+Wekan,Trello-like Kanban,Flatpak or web link,Install via Snap: `sudo snap install wekan`
+Redmine,Issue + task tracking,Preconfigured link or Docker support,"Install via package or Docker, configure MySQL/PostgreSQL"
+GanttProject,Gantt chart editor,"Java-based, small footprint","Download JAR, run with `java -jar ganttproject.jar`"
+Excalidraw (Electron),Whiteboard sketching,Standalone desktop PWA,Download Electron build or use browser
+Draw.io (Desktop),"Diagrams, flowcharts",Preinstalled or Flatpak,Flatpak: `flatpak install flathub com.jgraph.drawio.desktop`
+MindMup / Freeplane,Mind mapping,Include 1 native + 1 browser version,"Freeplane via apt or Flatpak, MindMup via browser"
+Slack / MS Teams,Team chat & meetings,PWA + tray icon launcher,Install via Snap or PWA
+Discord / Zulip,Community/team discussions,Optional with quiet mode,Flatpak install or web
+MailSpring,Polished email client,Gmail/Outlook/IMAP with tracking,Install via Snap or .deb package
+Franz / Ferdi,Unified chat manager,"Manage Slack, WhatsApp, etc.",Install via .deb or AppImage
+Zim Wiki,Local wiki notebook,Offline-first documentation,Install via apt: `sudo apt install zim`
+DokuWiki / HedgeDoc,Collaborative docs,Optional offline bundle,Self-host via Docker or package manager
+Quarto or Markdown Viewer,Clean reading & doc generation,Lightweight,Install via pip: `pip install quarto` or browser extension
+Plank Dock,macOS-like dock,For calm UI,Install via apt: `sudo apt install plank`
+Albert / Ulauncher,Spotlight-like launcher,Workflow shortcuts,Install via PPA or Flatpak
+Conky / Rainmeter-like HUD,At-a-glance tasks/calendar,Pre-skinned with PM overlay,"Install via apt, load custom config"
+Caffeine / Keep Awake,Prevent screen lock,Small but useful,Install via apt: `sudo apt install caffeine`
+CopyQ,Clipboard manager,Productivity booster,Install via apt or Flatpak
+Jira,Issue tracking,Web PWA,Install as PWA in Chromium/Edge
+Notion,Docs + wiki + tasks,Web PWA,Install as PWA and pin
+Google Calendar,Scheduling,Web PWA,Login and install as app
+ClickUp / Asana,Task coordination,Web PWA,Same as above
+Figma,Design reviews,Web PWA,Install or run in browser
+Miro,Whiteboarding,Web PWA,Same as above
+Github Projects,Dev coordination,Web PWA,Same as above
+ChatGPT / Claude.ai,Research assistant,Web PWA,Browser shortcut
+Cloudi ZenBoard,Dashboard,One-glance view of tasks and meetings,Custom QML or Electron-based app
+Cloudi StandupBot,Meeting assistant,Daily standup input + export,Python or shell tool integrated with GUI
+Flow Mode,Focus session mode,Pomodoro + task launcher,Shell + UI integration
+PM Daily Digest Generator,Auto-summary,LLM powered digest,Script integrating calendar + mail + tasks

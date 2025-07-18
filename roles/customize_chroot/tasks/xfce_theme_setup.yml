@@ -131,3 +131,19 @@
 #- name: Load Tilix config via dconf inside chroot
 #  command: >
 #    chroot {{ CHROOT_DIR }} bash -c 'dconf load /com/gexperts/Tilix/ < /tmp/tilix.dconf'
+
+# Creates the custom menu
+- name: Copy Cloudi XFCE menu zip into chroot
+  copy:
+    src: "{{ BUILD_BASE_PATH }}/cloudify-os-main/menus/cloudi-xfce-menu.zip"
+    dest: "{{ CHROOT_DIR }}/tmp/cloudi-xfce-menu.zip"
+
+- name: Unzip Cloudi XFCE menu configuration inside chroot
+  command: chroot {{ CHROOT_DIR }} bash -c "unzip /tmp/cloudi-xfce-menu.zip -d / && rm /tmp/cloudi-xfce-menu.zip"
+  args:
+    creates: "{{ CHROOT_DIR }}/usr/share/applications/cloudi-zenboard.desktop"
+  become: true
+
+- name: Update desktop database inside chroot
+  command: chroot {{ CHROOT_DIR }} update-desktop-database
+  become: true

@@ -14,65 +14,58 @@
     - K_xsession.sh
     - L_cleanup.sh
   become: true
+# --- Core Desktop & Essentials ---
+xubuntu-desktop           # The full XFCE desktop environment
+plymouth-themes           # For boot splash
+sudo                      # Essential for user management
+ubuntu-standard           # Standard Ubuntu base utilities
+locales                   # For language support
+network-manager           # Network management
+net-tools                 # ifconfig, netstat etc.
+wireless-tools            # For managing wireless connections
+wpagui                    # GUI for WPA supplicant
+git                       # Version control
+curl                      # Data transfer utility
+wget                      # Non-interactive network downloader
+vim                       # Powerful text editor
+nano                      # Simple text editor
+less                      # File pager
+build-essential           # For compiling software
+cmake                     # Build system generator
+unzip                     # For extracting zip files
+gnupg                     # For managing GPG keys (for external repos)
+apt-transport-https       # For HTTPS APT repositories
 
+# --- Productivity & Office ---
+nextcloud-desktop         # Nextcloud desktop client
+thunderbird               # Email client with calendar
+libreoffice               # Full office suite (Writer, Calc, Impress)
+ganttproject              # Gantt chart editor
+zim                       # Desktop wiki notebook
 
-Whitesur icon theme for mac https://www.gnome-look.org/p/1405756
+# --- Utilities & Enhancements ---
+plank                     # macOS-like dock
+ulauncher                 # Spotlight-like launcher
+conky-all                 # Highly customizable system monitor
+copyq                     # Advanced clipboard manager
+clamav-daemon             # Antivirus daemon (for security-conscious PMs)
+terminator                # Advanced terminal emulator (or xfce4-terminal)
+remind                    # CLI reminder tool
 
-  #Steps for Mac
-  sudo apt install plank -y
-  https://www.gnome-look.org/p/1403328 theme shall be in /home/gokul/.themes/
+# --- For Optional Installations (if you add external repos via hooks) ---
+# code                      # Visual Studio Code (requires Microsoft repo)
+# google-chrome-stable      # Google Chrome (requires Google repo)
+# openjdk-8-jdk             # Java 8 Development Kit
+# openjdk-8-jre             # Java 8 Runtime Environment
 
+# --- For Docker & Containerization ---
+docker.io                 # Docker Engine
+docker-compose            # Docker Compose (often installed as a plugin now)
 
-  Set active theme
-  xfconf/xfce-perchannel-xml/xsettings.xml
+# --- Python Development (for scripting/tools) ---
+python3-pip               # Python package installer
+python3-venv              # For creating Python virtual environments
 
-  Content Below
-  gokul@cloudify-os-live:~/.config/xfce4$ cat xfconf/xfce-perchannel-xml/xsettings.xml 
-<?xml version="1.0" encoding="UTF-8"?>
-
-<channel name="xsettings" version="1.0">
-  <property name="Net" type="empty">
-    <property name="ThemeName" type="string" value="WhiteSur-Light"/>
-    <property name="IconThemeName" type="empty"/>
-    <property name="DoubleClickTime" type="empty"/>
-    <property name="DoubleClickDistance" type="empty"/>
-    <property name="DndDragThreshold" type="empty"/>
-    <property name="CursorBlink" type="empty"/>
-    <property name="CursorBlinkTime" type="empty"/>
-    <property name="SoundThemeName" type="empty"/>
-    <property name="EnableEventSounds" type="empty"/>
-    <property name="EnableInputFeedbackSounds" type="empty"/>
-    <property name="FallbackIconTheme" type="empty"/>
-  </property>
-  <property name="Xft" type="empty">
-    <property name="DPI" type="empty"/>
-    <property name="Antialias" type="empty"/>
-    <property name="Hinting" type="empty"/>
-    <property name="HintStyle" type="empty"/>
-    <property name="RGBA" type="empty"/>
-    <property name="Lcdfilter" type="empty"/>
-  </property>
-  <property name="Gtk" type="empty">
-    <property name="CanChangeAccels" type="empty"/>
-    <property name="ColorPalette" type="empty"/>
-    <property name="FontName" type="empty"/>
-    <property name="MonospaceFontName" type="empty"/>
-    <property name="IconSizes" type="empty"/>
-    <property name="KeyThemeName" type="empty"/>
-    <property name="ToolbarStyle" type="empty"/>
-    <property name="ToolbarIconSize" type="empty"/>
-    <property name="MenuImages" type="empty"/>
-    <property name="ButtonImages" type="empty"/>
-    <property name="MenuBarAccel" type="empty"/>
-    <property name="CursorThemeName" type="empty"/>
-    <property name="CursorThemeSize" type="empty"/>
-    <property name="DecorationLayout" type="empty"/>
-    <property name="DialogsUseHeader" type="empty"/>
-    <property name="TitlebarMiddleClick" type="empty"/>
-  </property>
-  <property name="Gdk" type="empty">
-    <property name="WindowScalingFactor" type="empty"/>
-  </property>
-</channel>
-
-
+# --- For GPU monitoring (if applicable for your build host) ---
+# nvtop                     # NVIDIA GPU monitoring
+# radeontop                 # AMD GPU monitoring
